@@ -1,0 +1,110 @@
+/* Navbar Container */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background-color: #1a1a1a;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.3s ease;
+    border-radius: 25px;
+  }
+  
+
+  .navbar:hover {
+    background-color: #222;
+  }
+  
+  /* Logo Styling */
+  .logo {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #f8f9fa;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .logo:hover {
+    color: #00acee; /* Twitter-like blue for a modern touch */
+  }
+  
+  /* Navigation Links */
+  .navLinks {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+  }
+  
+  /* Link Styling */
+  .link {
+    color: #f8f9fa;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    list-style: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    letter-spacing: 1px;
+  opacity: 0.9;
+  }
+  
+  .link:hover {
+    background-color: #333;
+    color: #00acee;
+    transform: translateY(-2px); /* Slight lift effect */
+  }
+  
+  /* Active Link Styling */
+  .link_active {
+    color: #00acee;
+    border-bottom: 2px solid #00acee;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .navbar {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px;
+    }
+    
+    .navLinks {
+      flex-direction: column;
+      width: 100%;
+      padding: 10px 0;
+      gap: 12px;
+    }
+  
+    .link {
+      width: 100%;
+      text-align: left;
+      padding: 10px;
+    }
+  }
+  
+  /* Button Styling (Optional) */
+  .navButton {
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #1a1a1a;
+    background-color: #00acee;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 16px;
+  }
+  
+  .navButton:hover {
+    background-color: #0091cc;
+  }
+  
