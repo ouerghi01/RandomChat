@@ -23,7 +23,7 @@ export default function Login() :JSX.Element {
         const data = await response.json();
         localStorage.setItem('access_token', data.access_token);
         alert("Logged In Successfully!")
-        window.location.href="http://localhost:3000/"
+        window.location.href="http://localhost:3000/Messanger"
     }
     return (
         <div className={styles.container}>
