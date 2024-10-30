@@ -24,9 +24,11 @@ export class AuthController {
         if(user!=null){
             return user;
         }
-        return await this.authService.register(createUserDto)
-       
+        const happen= await this.authService.register(createUserDto)
+        if(happen) return true;
+        return null;
 
+        
     }
     
 

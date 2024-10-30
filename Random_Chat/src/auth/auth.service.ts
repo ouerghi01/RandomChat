@@ -46,10 +46,12 @@ export class AuthService {
    
    
 
-    async register(createUserDto: CreateUserDto): Promise<User> {
+    async register(createUserDto: CreateUserDto): Promise<Boolean> {
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
         createUserDto.password = hashedPassword;
-        return this.userService.create(createUserDto);
+        const new_user=this.userService.create(createUserDto);
+        if(new_user !=null) return true
+        return false
     }
 }

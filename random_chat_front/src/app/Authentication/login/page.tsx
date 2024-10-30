@@ -1,15 +1,39 @@
-
+'use client'
 import styles from './styles.module.css';
-export default function login() {
+import { FormEvent, useState } from 'react';
+export default function Login() :JSX.Element {
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    async function onSubmit(event :FormEvent<HTMLFormElement>){
+        event.preventDefault();
+        const response = await fetch('http://localhost:3006/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email,
+                password,
+            }),
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message);
+        }
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        alert("Logged In Successfully!")
+        window.location.href="http://localhost:3000/"
+    }
     return (
         <div className={styles.container}>
 
-            <h1 className={styles.header}>Login</h1>
+        <h1 className={styles.header}>Login</h1>
 
-        <form className={styles.form}>
-        <input type="text" placeholder="Email" className={styles.input} />
+        <form className={styles.form} onSubmit={onSubmit}>
+        <input type="text" placeholder="Email" className={styles.input} value={email} onChange={(e) => setEmail(e.target.value)}/>
         
-        <input type="password" placeholder="Password" className={styles.input} />
+        <input type="password" placeholder="Password" className={styles.input} value={password} onChange={(e) => setPassword(e.target.value)} />
         <button type="submit" className={styles.button}>Login</button>
       </form>
         </div>

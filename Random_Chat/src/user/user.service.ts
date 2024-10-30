@@ -26,6 +26,7 @@ export class UserService {
     user.age = createUserDto.age;
     user.password = createUserDto.password;
     user.gender = createUserDto.gender;
+    user.created_at=new Date();
     return this.userRepository.save(user);
 
   }

@@ -17,5 +17,7 @@ export class User {
     password: string;
     @OneToMany(() => Token, token => token.id)
     tokens: Token[];
+    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    created_at: Date;
 
 }
