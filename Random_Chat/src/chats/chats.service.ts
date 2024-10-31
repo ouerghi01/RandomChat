@@ -9,8 +9,8 @@ export class ChatsService {
         @Inject(forwardRef(() => AuthService))
         private authService :AuthService) {}
     async getUserFromSocket(socket :Socket) {
-        let auth_token = socket.handshake.headers.authorization;
-        console.log(auth_token)
+        let auth_token = Array.isArray(socket.handshake.query.token) ? socket.handshake.query.token[0] : socket.handshake.query.token;
+        console.log(auth_token);
         const user = await this.authService.getUserFromAuthenticationToken(auth_token);
         if (!user) {
             throw new WsException('Invalid credentials.');
