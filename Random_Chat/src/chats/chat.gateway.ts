@@ -4,10 +4,11 @@ import { ChatsService } from "./chats.service";
 import { UserService } from "src/user/user.service";
 import { forwardRef, Inject } from "@nestjs/common";
 import { MessageDto } from "src/user/dto/message.dto";
-type MessageD = {
-  receiver_email:string;
-  content:string
+import { json } from "stream/consumers";
 
+interface Message {
+  content: string;
+  roomId: string;
 }
 @WebSocketGateway(3001, { transports: ['websocket'] }) // Enable CORS for WebSocket
 export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
@@ -49,17 +50,20 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
     }
   }
   @SubscribeMessage('send_message')
-  async listenForMessages(@MessageBody() message:string,@ConnectedSocket() socket: Socket) {
+  async listenForMessages(@MessageBody() message:Message,@ConnectedSocket() socket: Socket) {
     try {
-      const message_new = JSON.parse(message);
+      const message_new :Message=message;
+      console.log(message)
+
       const user = await this.chatsService.getUserFromSocket(socket);
       if (user != null) {
-      this.server.to(message_new.roomId).emit('notification', {
+      this.server.to(message_new.roomId).emit('send_message', {
         content: message_new.content,
-        sender: user.id
+        sender: user.email,
+        socket_id: socket.id
       });
-      const message_dto = new MessageDto(message_new.content, user.id, message_new.roomId);
-      this.userService.saveMessage(message_dto);
+      //const message_dto = new MessageDto(message_new.content, user.id, message_new.roomId);
+      //this.userService.saveMessage(message_dto);
       }
     } catch (error) {
       console.error('Error processing message:', error);
@@ -99,20 +103,28 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
       if (this.waitingQueue.length > 0) {
         const random_user_id = this.waitingQueue.shift();
         const random_socket = this.map.get(random_user_id);
+        const random_user = await this.chatsService.getUserFromSocket(random_socket)
         if (random_socket != null) {
         const roomId = this.generateRoomId(user.id, random_user_id);
         socket.join(roomId);
         random_socket.join(roomId);
-        this.server.to(roomId).emit('notification', {
-          message: 'You are now connected with a random user!',
+        this.server.to(random_socket.id).emit('find_random_chat', {
+          message: 'You are now connected with a random user! ',
+          user_id: user.email,
           roomId: roomId
         });
+        this.server.to(socket.id).emit('find_random_chat', {
+          message: 'You are now connected with a random user!',
+          user_id: random_user.email,
+          roomId: roomId
+        });
+
         this.userService.createRoom(roomId, user.id, random_user_id);
         this.waitingQueue.pop();
         }
       } else {
         this.waitingQueue.push(user.id);
-        this.server.to(socket.id).emit('notification', {
+        this.server.to(socket.id).emit('find_random_chat', {
         message: 'Waiting for a random user to join...'
         });
       }

@@ -3,9 +3,15 @@ import React, { useEffect, useState } from 'react';
 import Logout from './Components/logout';
 import io from 'socket.io-client';
 import Messages from './Components/messanger';
+interface Initials_Message {
+  message:string;
+  user_id: string;
+  roomId: string;
+}
 export default function MessageApp() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
   const [show, setShow] = useState(false);
+  const [greetingMessage,SetgreetingMessage] = useState<Initials_Message | null>(null);
 
   useEffect(() => {
     // Initialize the socket only on the client side
@@ -26,7 +32,18 @@ export default function MessageApp() {
         newSocket.disconnect();
       };
     }
-  }, []); // Empty dependency array ensures this only runs once on mount
+  }, []);
+  useEffect(() => {
+     socket?.on('find_random_chat',(data:Initials_Message) => {
+      SetgreetingMessage(data)
+
+     })
+    return () => {
+    socket?.off('find_random_chat', (data:Initials_Message) => {
+      SetgreetingMessage(data)
+    });
+     };
+  },[socket])
 
   const handleStartChat = () => {
     if (socket) {
@@ -49,9 +66,30 @@ export default function MessageApp() {
         {!show ? (
           <button className="start-button" onClick={handleStartChat}>
             Start talking with Random People
-          </button>) : (socket && <Messages socket={socket} />)
+          </button>) : null
         }
       </main>
+      {greetingMessage &&
+        <div className="greeting-message">
+          <h1> Room Id {greetingMessage.roomId}</h1>
+          <h1> {greetingMessage.user_id}</h1>
+          <div className='greeting-notification' style={{
+            color: 'green',
+            fontWeight: 'bold',
+            marginBottom: '10px'
+          }}>
+            {
+              greetingMessage.message 
+            }
+          </div>
+        </div>
+        
+      }
+      {
+        greetingMessage?.roomId && socket ? (
+          <Messages socket={socket}  roomId={greetingMessage.roomId} />
+        ) :null
+      }
 
       {/* Inline styles in JSX */}
       <style jsx>{`
