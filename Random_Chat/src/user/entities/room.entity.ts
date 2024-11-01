@@ -1,14 +1,19 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "./user.entity";
 
 @Entity("rooms")
 export class Room {
     @PrimaryColumn()
     id: string;
-    sender_id:number;
-    receiver_id:number;
-    constructor(id:string, sender_id:number, receiver_id:number){
-        this.id = id;
-        this.sender_id = sender_id;
-        this.receiver_id = receiver_id;
+    @OneToOne(() => User)
+    @JoinColumn({ name: "sender_id" })
+    sender: User;
+    @OneToOne(() => User)
+    @JoinColumn({ name: "receiver_id" })
+    receiver:User;
+    constructor( roomId:string,sender:User, receiver:User){
+        this.id=roomId;
+        this.sender= sender;
+        this.receiver = receiver;
     }
 }

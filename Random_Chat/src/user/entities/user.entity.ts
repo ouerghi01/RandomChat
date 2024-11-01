@@ -1,5 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn ,ManyToOne, OneToMany} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn ,ManyToOne, OneToMany, OneToOne, JoinColumn} from "typeorm";
 import { Token } from "./token.entity";
+import { Message } from "./message.entity";
+import { Room } from "./room.entity";
 
 @Entity("users")
 export class User {
@@ -17,6 +19,13 @@ export class User {
     password: string;
     @OneToMany(() => Token, token => token.id)
     tokens: Token[];
+    @OneToOne(() => Message)
+    @JoinColumn()
+    message: Message;
+    @OneToOne(() => Room, room => room.sender)
+    @JoinColumn()
+    room: Room;
+
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 

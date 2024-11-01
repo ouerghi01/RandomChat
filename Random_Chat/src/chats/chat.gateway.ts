@@ -5,8 +5,9 @@ import { UserService } from "src/user/user.service";
 import { forwardRef, Inject } from "@nestjs/common";
 import { MessageDto } from "src/user/dto/message.dto";
 import { json } from "stream/consumers";
+import { Message } from "src/user/entities/message.entity";
 
-interface Message {
+interface Message_int {
   content: string;
   roomId: string;
 }
@@ -50,9 +51,9 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
     }
   }
   @SubscribeMessage('send_message')
-  async listenForMessages(@MessageBody() message:Message,@ConnectedSocket() socket: Socket) {
+  async listenForMessages(@MessageBody() message:Message_int,@ConnectedSocket() socket: Socket) {
     try {
-      const message_new :Message=message;
+      const message_new :Message_int=message;
       console.log(message)
 
       const user = await this.chatsService.getUserFromSocket(socket);
@@ -62,8 +63,12 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         sender: user.email,
         socket_id: socket.id
       });
-      //const message_dto = new MessageDto(message_new.content, user.id, message_new.roomId);
-      //this.userService.saveMessage(message_dto);
+      let  message_dto = new MessageDto(message_new.content);
+      let message_entity=await this.userService.saveMessage(message_dto);
+      user.message=message_entity;
+      await this.userService.saveUser(user);
+      
+      
       }
     } catch (error) {
       console.error('Error processing message:', error);
@@ -119,7 +124,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
           roomId: roomId
         });
 
-        this.userService.createRoom(roomId, user.id, random_user_id);
+        this.userService.createRoom(roomId, user, random_user);
         this.waitingQueue.pop();
         }
       } else {

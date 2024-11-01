@@ -26,7 +26,7 @@ export class AuthService {
         await this.userService.storeTokenInRepository(access_token, user);
         return {
             access_token: access_token,
-            user: user
+            user_email: user.email,
         };
         
     }

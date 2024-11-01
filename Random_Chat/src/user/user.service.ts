@@ -63,18 +63,20 @@ export class UserService {
     
     return this.userRepository.save(user);
   }
+  saveUser(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
   async saveMessage(message_dto :MessageDto): Promise<Message> {
     const message = new Message();
     message.content = message_dto.content;
-    message.roomId =message_dto.roomId;
-    message.senderId=message_dto.sender_id;
-    
     await this.messageRepository.save(message);
     return message;
   }
-  async createRoom (room_id:string,sender_id:number,rec_id:number): Promise<void> {
-    const room:Room = new Room(room_id,sender_id,rec_id);
+  async createRoom (roomId:string,sender:User,rec:User): Promise<void> {
+    if(this.roomRepository.findOneBy({id:roomId})!=null){
+    const room:Room = new Room(roomId,sender,rec);
     await this.roomRepository.save(room);
+    }
   }
   async getAllMessages(): Promise<Message[]> {
     return this.messageRepository.find();
