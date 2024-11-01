@@ -19,6 +19,7 @@ export default function Logout() {
         .logout-button {
           border: none;
           color: white;
+          float:right;
           background-color: #d32f2f;
           cursor: pointer;
           padding: 8px 16px;

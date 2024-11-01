@@ -25,16 +25,32 @@ export default function Messages({ socket ,roomId}: MessagesProps) {
   },[socket,messages]);
     
   return (
-    <div>
-        <ul>
-            {messages.map((message,index) => {
-                return (
-                  <>
-                <ul style={{
+    <div style={{
+      width:'350px',
+
+    }}>
+        
+        <form className='form' onSubmit={(e)=>{
+          e.preventDefault()
+          socket.emit('send_message',{content:message, roomId:roomId})
+          setMessage("")  // Reset the input field to empty after sending the message.
+        }}>
+        <input  className="input"  type='text' value={message} onChange={(e) => {
+          setMessage(e.target.value)  
+        }} />
+        <button  style={{
+          padding:'5px', margin:'5px',
+          backgroundColor:'#FFFFFF',
+        }}>Send</button>
+        </form>
+        <ul style={{
                   listStyleType: 'none',
                   padding: '0px',
                   margin: '0px'
                 }}>
+            {messages.map((message,index) => {
+                return (
+                  <>
 
                 <strong>User {message.sender}: </strong>
                 <li key={index} style={{
@@ -42,13 +58,12 @@ export default function Messages({ socket ,roomId}: MessagesProps) {
                   padding: '5px',
                   border: '1px solid black',
                   borderRadius: '5px',
-                  color: message.socket_id === socket.id? 'blue' : 'black',
-                  backgroundColor: message.socket_id === socket.id? 'lightblue' : 'white'  // Apply different colors for sender and receiver.
+                  color: message.sender === localStorage.getItem('user_email')? 'blue' : 'black',
+                  backgroundColor: message.sender === localStorage.getItem('user_email')? 'lightblue' : 'white'  // Apply different colors for sender and receiver.
                 }}>
                     
                     {message.content}
                 </li>
-                </ul>
 
                   
                   </>
@@ -56,16 +71,6 @@ export default function Messages({ socket ,roomId}: MessagesProps) {
                 )
             })}
         </ul>
-        <form onSubmit={(e)=>{
-          e.preventDefault()
-          socket.emit('send_message',{content:message, roomId:roomId})
-          setMessage("")  // Reset the input field to empty after sending the message.
-        }}>
-        <input type='text' value={message} onChange={(e) => {
-          setMessage(e.target.value)  
-        }} />
-        <button >Send</button>
-        </form>
         
       
     </div>

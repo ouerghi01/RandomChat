@@ -1,0 +1,139 @@
+/* Global settings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+  }
+  
+  /* Container layout */
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .app-header {
+    width: 100%;
+    padding: 10px;
+    background-color: #3b5998;
+    color: white;
+  }
+  
+  .nav {
+    display: flex;
+    justify-content: flex-end;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  /* Main content */
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin: 20px auto;
+    width: 100%;
+  }
+  
+  /* Start button */
+  .start-button {
+    padding: 10px 20px;
+    font-size: 1.1em;
+    color: #fff;
+    background-color: #4a90e2;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .start-button:hover {
+    background-color: #357abd;
+  }
+  
+  /* Greeting section */
+  .greeting-section {
+    margin-top: 20px;
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .greeting-header {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .room-id {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .user-id {
+    font-size: 1.2em;
+    color: #555;
+  }
+  
+  .greeting-content {
+    background-color: #fafafa;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    color: #444;
+    line-height: 1.5;
+  }
+  
+  .greeting-content p {
+    margin: 0;
+  }
+  
+  /* Messages component container */
+  .messages-container {
+    width: 100%;
+    margin-top: 20px;
+  }
+  .input {
+    padding: 10px 14px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fafafa;
+    transition: border 0.3s ease;
+  }
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  .input:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #ffffff;
+  }
+  .button {
+    padding: 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
