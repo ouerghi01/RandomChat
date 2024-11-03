@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import Logout from './Components/logout';
 import io from 'socket.io-client';
 import Messages from './Components/messanger';
-import "./Components/message.css"
+import "./Components/message.css";
 
-interface Initials_Message {
+interface InitialsMessage {
   message: string;
   user_id: string;
   roomId: string;
@@ -13,17 +13,20 @@ interface Initials_Message {
 
 export default function MessageApp() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
-  const [show, setShow] = useState(false);
-  const [greetingMessage, SetgreetingMessage] = useState<Initials_Message | null>(null);
+  const [showChat, setShowChat] = useState(false);
+  const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
 
   useEffect(() => {
+    // Initialize socket only if access token exists
     const token = localStorage.getItem('access_token');
     if (token) {
       const newSocket = io("http://localhost:3001", {
         transports: ["websocket"],
-        query: { token: token }
+        query: { token }
       });
       setSocket(newSocket);
+
+      // Cleanup on component unmount
       return () => {
         newSocket.disconnect();
       };
@@ -31,7 +34,10 @@ export default function MessageApp() {
   }, []);
 
   useEffect(() => {
-    socket?.on('find_random_chat', (data: Initials_Message) => SetgreetingMessage(data));
+    // Listen for incoming greeting message
+    if (socket) {
+      socket.on('find_random_chat', (data: InitialsMessage) => setGreetingMessage(data));
+    }
     return () => {
       socket?.off('find_random_chat');
     };
@@ -39,7 +45,7 @@ export default function MessageApp() {
 
   const handleStartChat = () => {
     socket?.emit('find_random_chat');
-    setShow(true);
+    setShowChat(true);
   };
 
   return (
@@ -51,28 +57,62 @@ export default function MessageApp() {
       </header>
 
       <main className="main-content">
-        {!show && (
+        {!showChat ? (
           <button className="start-button" onClick={handleStartChat}>
             Start talking with Random People
           </button>
-        )}
-
-        {greetingMessage && (
-          <section className="greeting-section">
-            <div className="greeting-header">
-              <h1 className="room-id">Room ID: {greetingMessage.roomId}</h1>
-              <h2 className="user-id">User: {greetingMessage.user_id}</h2>
-            </div>
-            <div className="greeting-content">
-              <p>{greetingMessage.message}</p>
-            </div>
-          </section>
-        )}
-
-        {greetingMessage?.roomId && socket && (
-          <Messages socket={socket} roomId={greetingMessage.roomId} />
+        ) : (
+          greetingMessage?.user_id && (
+            <section className="greeting-section">
+              <GreetingHeader greetingMessage={greetingMessage} />
+              {socket && greetingMessage.roomId && (
+                <Messages socket={socket} roomId={greetingMessage.roomId} />
+              )}
+            </section>
+          )
         )}
       </main>
     </div>
   );
 }
+
+// Greeting Header Component
+const GreetingHeader: React.FC<{ greetingMessage: InitialsMessage }> = ({ greetingMessage }) => (
+  <div className="greeting-header" style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '15px',
+    backgroundColor: '#f8f9fa',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    borderRadius: '8px',
+    marginBottom: '20px',
+  }}>
+    {/* Hidden Room ID */}
+    <h1 className="room-id" style={{ display: 'none' }}>
+      Room ID: {greetingMessage.roomId}
+    </h1>
+
+    {/* User ID Display */}
+    <div className="user-id" style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#d9534f',
+      borderRadius: '50%',
+      width: '70px',
+      height: '70px',
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: '1.2em',
+      cursor: 'pointer',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+      transition: 'transform 0.2s ease-in-out',
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
+    title="User ID">
+      {greetingMessage.user_id.substring(0, 5)}
+    </div>
+  </div>
+);

@@ -73,7 +73,7 @@ export class UserService {
     return message;
   }
   async createRoom (roomId:string,sender:User,rec:User): Promise<void> {
-    if(this.roomRepository.findOneBy({id:roomId})!=null){
+    if(this.roomRepository.findOneBy({id:roomId})==null){
     const room:Room = new Room(roomId,sender,rec);
     await this.roomRepository.save(room);
     }
