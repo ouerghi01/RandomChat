@@ -1,4 +1,7 @@
 /* Global settings */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 * {
     margin: 0;
     padding: 0;
@@ -13,12 +16,13 @@
   
   /* Container layout */
   .app-container {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
   }
-  
+
   .app-header {
     width: 100%;
     padding: 10px;

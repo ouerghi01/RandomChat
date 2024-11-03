@@ -9,7 +9,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   return (
     <>
-      <section>{children}</section>
+      <section className='h-full w-full'>{children}</section>
     </>
   )
 }

@@ -25,7 +25,7 @@ export default function Login() :JSX.Element {
         localStorage.setItem('user_email', data.user_email);
 
         alert("Logged In Successfully!")
-        window.location.href="/Messanger"
+        window.location.href="/Messenger"
     }
     return (
         <div className={styles.container}>

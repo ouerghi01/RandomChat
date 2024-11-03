@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-
+import * as React from "react";
+import {NextUIProvider} from "@nextui-org/react";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -23,9 +24,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+
+      <NextUIProvider>
         {children}
+      </NextUIProvider>
       </body>
     </html>
   );
