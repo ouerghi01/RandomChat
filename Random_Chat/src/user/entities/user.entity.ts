@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn ,ManyToOne, OneToMany, OneToOne,
 import { Token } from "./token.entity";
 import { Message } from "./message.entity";
 import { Room } from "./room.entity";
+import { Friendship } from "./friend.entity";
 
 @Entity("users")
 export class User {
@@ -25,7 +26,11 @@ export class User {
     @OneToOne(() => Room, room => room.sender)
     @JoinColumn()
     room: Room;
+    @OneToMany(() => Friendship, (friendship) => friendship.sender)
+    sentFriendRequests: Friendship[];
 
+    @OneToMany(() => Friendship, (friendship) => friendship.receiver)
+    receivedFriendRequests: Friendship[];
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
 

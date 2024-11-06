@@ -21,6 +21,7 @@ export default function Login() :JSX.Element {
             throw new Error(error.message);
         }
         const data = await response.json();
+        localStorage.clear();
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('user_email', data.user_email);
 

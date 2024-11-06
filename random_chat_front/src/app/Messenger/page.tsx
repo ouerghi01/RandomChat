@@ -3,13 +3,13 @@ import React, { useEffect, useState } from 'react';
 //import Logout from './Components/logout';
 import io from 'socket.io-client';
 import Messages from './Components/messanger';
-import { useDrag } from "react-dnd";
 import "./Components/message.css";
 import {Navbar, NavbarBrand, NavbarContent,  DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar} from "@nextui-org/react";
 interface InitialsMessage {
   message: string;
   user_id: string;
   roomId: string;
+  id:number;
 }
 
 export default function MessageApp() {
@@ -122,6 +122,8 @@ function MessageModule(showChat: boolean, handleStartChat: () => void, greetingM
               socket={socket}
               roomId={greetingMessage.roomId}
               user_guest={greetingMessage.user_id}
+              id = {greetingMessage.id}
+              isRandomChat={true}  // New prop to control size
             />
           </div>
         )

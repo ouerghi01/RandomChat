@@ -5,8 +5,9 @@ import { User } from './entities/user.entity';
 import { Token } from './entities/token.entity';
 import { Message } from './entities/message.entity';
 import { Room } from './entities/room.entity';
+import { Friendship } from './entities/friend.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([User,Token,Message,Room])],
+  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship])],
   controllers: [],
   providers: [UserService],
   exports: [UserService],

@@ -7,6 +7,7 @@ import { Token } from './user/entities/token.entity';
 import { ChatsModule } from './chats/chats.module';
 import { Message } from './user/entities/message.entity';
 import { Room } from './user/entities/room.entity';
+import { Friendship } from './user/entities/friend.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { Room } from './user/entities/room.entity';
       password: 'postgres',
       username: 'postgres',
       database: 'postgres',
-      entities: [User,Token,Message,Room],
+      entities: [User,Token,Message,Room,Friendship],
       synchronize: true,
       logging: true,
     }),

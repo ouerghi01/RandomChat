@@ -8,6 +8,7 @@ import { Token } from './entities/token.entity';
 import { MessageDto } from './dto/message.dto';
 import { Message } from './entities/message.entity';
 import { Room } from './entities/room.entity';
+import { Friendship } from './entities/friend.entity';
 
 @Injectable()
 export class UserService {
@@ -17,7 +18,8 @@ export class UserService {
     @InjectRepository(Token) private tokenRepository :Repository<Token>
     ,
     @InjectRepository(Room) private roomRepository :Repository<Room>,
-    @InjectRepository(Message) private messageRepository :Repository<Message>
+    @InjectRepository(Message) private messageRepository :Repository<Message>,
+    @InjectRepository(Friendship) private FriendshipRepository :Repository<Friendship>,
   ) {}
   create(createUserDto: CreateUserDto):Promise<User> {
     const user = new User();
@@ -37,7 +39,29 @@ export class UserService {
     token.created_at = new Date();
     token.expired_at = new Date(new Date().getTime() + 8 * 24 * 60 * 60 * 1000);
     await this.tokenRepository.save(token);
-}
+  }
+  public async createFriendship(sender: User, receiver: User): Promise<void> {
+    const friendship = new Friendship();
+    friendship.sender = sender;
+    friendship.receiver = receiver;
+    friendship.accepted = false;
+    await this.FriendshipRepository.save(friendship);
+  }
+  public async checkFriendship(user:User,friend:User): Promise<boolean> {
+    const friendship1 = await this.FriendshipRepository.findOneBy({sender:user,receiver:friend});
+    const friendship2 = await this.FriendshipRepository.findOneBy({sender:friend,receiver:user});
+    if(friendship1!=null || friendship2!=null){
+      if (friendship1.accepted==true || friendship2.accepted==true){
+        return true;
+      }
+    }
+    return false;
+  }
+  public async acceptFriendship(sender: User, receiver: User): Promise<void> {
+    const friendship = await this.FriendshipRepository.findOneBy({sender, receiver});
+    friendship.accepted = true;
+    await this.FriendshipRepository.save(friendship);
+  }
   public findByToken(token: string): Promise<Token> {
     return this.tokenRepository.findOneBy({token})
   }

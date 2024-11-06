@@ -15,6 +15,9 @@ interface Message_int {
 export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   private map: Map<number, Socket>; 
   private waitingQueue: number[] ;
+  public getClients(): number[] {
+    return [... this.map.keys()];
+  }
   constructor(private chatsService: ChatsService,
   @Inject(forwardRef(() => UserService))
   private userService :UserService) {
@@ -54,7 +57,6 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   async listenForMessages(@MessageBody() message:Message_int,@ConnectedSocket() socket: Socket) {
     try {
       const message_new :Message_int=message;
-      console.log(message)
 
       const user = await this.chatsService.getUserFromSocket(socket);
       if (user != null) {
@@ -99,6 +101,134 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   async randomUserMessage(@ConnectedSocket() socket: Socket) {
     await this.initiateRandomConversation(socket);
   }
+  @SubscribeMessage('accept_friend')
+  async acceptFriend(@ConnectedSocket() socket: Socket, @MessageBody() friendId: number) {
+    try {
+      const user = await this.chatsService.getUserFromSocket(socket);
+      if (user != null) {
+      const friend = await this.userService.findOne(friendId);
+      if (friend != null) {
+        await this.userService.acceptFriendship(user, friend);
+        this.server.to(socket.id).emit('notification', {
+        message: `You are now friends with ${friend.email}.`
+        });
+        const friendSocket = this.map.get(friendId);
+        if (friendSocket != null) {
+        this.server.to(friendSocket.id).emit('accepted_friend', {
+        message: `You are now friends with ${user.email}.`
+        });
+        this.server.to(socket.id).emit('accepted_friend', {
+          message: `You are now friends with ${user.email}.`
+          });
+        this.server.to(friendSocket.id).emit('notification', {
+          message: `You are now friends with ${user.email}.`
+          });
+        }
+      } else {
+        this.server.to(socket.id).emit('notification', {
+        message: 'The user you are trying to add as a friend does not exist.'
+        });
+      }
+      }
+    } catch (error) {
+      console.error('Error accepting friend:', error);
+      this.server.to(socket.id).emit('notification', {
+      message: 'An error occurred while trying to accept a friend. Please try again later.'
+      });
+    }
+  }
+  @SubscribeMessage('add_friend')
+  async addFriend(@ConnectedSocket() socket: Socket, @MessageBody() friendId: number) {
+    try {
+      const user = await this.chatsService.getUserFromSocket(socket);
+      if (user != null) {
+      const friend = await this.userService.findOne(friendId);
+      if (friend != null) {
+        await this.userService.createFriendship(user, friend);
+        this.server.to(socket.id).emit('notification', {
+        message: `Friend request sent to ${friend.email}.`
+        });
+        const friendSocket = this.map.get(friendId);
+        if (friendSocket != null) {
+        this.server.to(friendSocket.id).emit('notification_friendship',{message:'accept'});
+        }
+      } else {
+        this.server.to(socket.id).emit('notification', {
+        message: 'The user you are trying to add as a friend does not exist.'
+        });
+      }
+      }
+    } catch (error) {
+      console.error('Error adding friend:', error);
+      this.server.to(socket.id).emit('notification', {
+      message: 'An error occurred while trying to add a friend. Please try again later.'
+      });
+    }
+  }
+  @SubscribeMessage('notification_friendship')
+  async receiveFriendshipNotification(@ConnectedSocket() socket: Socket,message:any) {
+    try {
+      const user = await this.chatsService.getUserFromSocket(socket);
+      if (user != null) {
+    
+      this.server.to(socket.id).emit('notification_friendship', 
+        message
+      );
+      console.log('accept')
+      }
+    } catch (error) {
+      console.error('Error receiving friendship notification:', error);
+      this.server.to(socket.id).emit('notification', {
+      message: 'An error occurred while trying to retrieve friend requests. Please try again later.'
+      });
+    }
+  }
+  @SubscribeMessage('accepted_friend')
+  async receiveAcceptedFriend(@ConnectedSocket() socket: Socket,message:any) {
+    try {
+      const user = await this.chatsService.getUserFromSocket(socket);
+      if (user != null) {
+    
+      this.server.to(socket.id).emit('accepted_friend', 
+        message
+      );
+      }
+    } catch (error) {
+      console.error('Error receiving accepted friend:', error);
+      this.server.to(socket.id).emit('notification', {
+      message: 'An error occurred while trying to retrieve friend requests. Please try again later.'
+      });
+    }
+  }
+  @SubscribeMessage('check_friendship')
+  async checkFriendship(@ConnectedSocket() socket: Socket, @MessageBody() friendId: number) {
+  try {
+    const user = await this.chatsService.getUserFromSocket(socket);
+    if (user != null) {
+    const friend = await this.userService.findOne(friendId);
+    if (friend != null) {
+      const friendship = await this.userService.checkFriendship(user, friend);
+      this.server.to(socket.id).emit('check_friendship', {
+      friendship: friendship
+      });
+    } else {
+      this.server.to(socket.id).emit('notification', {
+      message: 'The user you are trying to check friendship with does not exist.'
+      });
+    }
+    }
+ 
+  }
+  catch (error) {
+    console.error('Error checking friendship:', error);
+    this.server.to(socket.id).emit('notification', {
+    message: 'An error occurred while trying to check friendship. Please try again later.'
+    });
+  }
+  
+  }
+
+
 
 
   private async initiateRandomConversation(socket:Socket): Promise<void> {
@@ -116,11 +246,14 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         this.server.to(random_socket.id).emit('find_random_chat', {
           message: 'You are now connected with a random user! ',
           user_id: user.email,
+          id:user.id,
           roomId: roomId
         });
         this.server.to(socket.id).emit('find_random_chat', {
           message: 'You are now connected with a random user!',
           user_id: random_user.email,
+          id:random_user.id,
+          
           roomId: roomId
         });
 
