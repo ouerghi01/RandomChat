@@ -57,6 +57,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   async listenForMessages(@MessageBody() message:Message_int,@ConnectedSocket() socket: Socket) {
     try {
       const message_new :Message_int=message;
+      socket.join(message_new.roomId);
 
       const user = await this.chatsService.getUserFromSocket(socket);
       if (user != null) {
