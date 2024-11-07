@@ -24,6 +24,7 @@ export default function Login() :JSX.Element {
         localStorage.clear();
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('user_email', data.user_email);
+        localStorage.setItem('user_id', data.user_id);
 
         alert("Logged In Successfully!")
         window.location.href="/Messenger"

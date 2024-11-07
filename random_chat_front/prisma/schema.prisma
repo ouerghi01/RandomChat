@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model friendship {
+  id                                  Int      @id(map: "PK_dbd6fb568cd912c5140307075cc") @default(autoincrement())
+  accepted                            Boolean  @default(false)
+  createdAt                           DateTime @default(now()) @db.Timestamp(6)
+  sender_id                           Int?
+  receiver_id                         Int?
+  users_friendship_sender_idTousers   users?   @relation("friendship_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_86463167c10dc37dbf9d39728bd")
+  users_friendship_receiver_idTousers users?   @relation("friendship_receiver_idTousers", fields: [receiver_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8cced01afb7c006b9643aed97bf")
+}
+
+model message {
+  id Int @id(map: "PK_ba01f0a3e0123651915008bc578") @default(autoincrement())
+}
+
+model messages {
+  id      Int    @id(map: "PK_18325f38ae6de43878487eff986") @default(autoincrement())
+  content String
+  users   users?
+}
+
+model rooms {
+  sender_id                      Int?   @unique(map: "UQ_53745bfa52d5d4c94fd4cd0ccb4")
+  id                             String @id(map: "PK_0368a2d7c215f2d0458a54933f2") @db.VarChar
+  receiver_id                    Int?   @unique(map: "UQ_4e3908821654edfa486d24a028f")
+  users_rooms_receiver_idTousers users? @relation("rooms_receiver_idTousers", fields: [receiver_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_4e3908821654edfa486d24a028f")
+  users_rooms_sender_idTousers   users? @relation("rooms_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_53745bfa52d5d4c94fd4cd0ccb4")
+  users_users_roomIdTorooms      users? @relation("users_roomIdTorooms")
+}
+
+model tokens {
+  id         Int       @id(map: "PK_3001e89ada36263dabf1fb6210a") @default(autoincrement())
+  token      String    @db.VarChar(255)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  expired_at DateTime? @default(now()) @db.Timestamp(6)
+  userId     Int?
+  users      users?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_d417e5d35f2434afc4bd48cb4d2")
+}
+
+model user {
+  id       Int              @id(map: "PK_cace4a159ff9f2512dd42373760") @default(autoincrement())
+  name     String           @db.VarChar(30)
+  email    String           @db.VarChar(255)
+  age      Int
+  gender   user_gender_enum
+  password String           @db.VarChar(30)
+}
+
+model users {
+  id                                       Int               @id(map: "PK_a3ffb1c0c8416b9fc6f907b7433") @default(autoincrement())
+  name                                     String            @db.VarChar(30)
+  email                                    String            @db.VarChar(255)
+  age                                      Int
+  gender                                   users_gender_enum
+  password                                 String            @db.VarChar(255)
+  created_at                               DateTime          @default(now()) @db.Date
+  messageId                                Int?              @unique(map: "UQ_9485ab8767f336dce69c3b7631d")
+  roomId                                   String?           @unique(map: "UQ_33bc07e7cd5c7e8bb7ac570f1ed") @db.VarChar
+  friendship_friendship_sender_idTousers   friendship[]      @relation("friendship_sender_idTousers")
+  friendship_friendship_receiver_idTousers friendship[]      @relation("friendship_receiver_idTousers")
+  rooms_rooms_receiver_idTousers           rooms?            @relation("rooms_receiver_idTousers")
+  rooms_rooms_sender_idTousers             rooms?            @relation("rooms_sender_idTousers")
+  tokens                                   tokens[]
+  rooms_users_roomIdTorooms                rooms?            @relation("users_roomIdTorooms", fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_33bc07e7cd5c7e8bb7ac570f1ed")
+  messages                                 messages?         @relation(fields: [messageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_9485ab8767f336dce69c3b7631d")
+}
+
+enum user_gender_enum {
+  m
+  f
+}
+
+enum users_gender_enum {
+  m
+  f
+}
