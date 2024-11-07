@@ -11,15 +11,22 @@ interface InitialsMessage {
   roomId: string;
   id: number;
 }
+interface friendWithRoom {
+  id: number;
+  roomId: string;
+  name: string;
+ 
+}
 
 export default function MessageApp() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
   const [user_email, setUser_email] = useState<string>('');
-  const [friend_ids, setFriend_ids] = useState<string[]>([]);
+  
   const [isRandomChat, setIsRandomChat] = useState<boolean>(true);
-
+  const [friend_ids, setFriend_ids] = useState<friendWithRoom[]>([]);
+  const  [friends,setFriends] = useState<friendWithRoom[]>([]);
   async function fetchFriend(userId: number) {
     const response = await fetch('/api/friends/', {
       method: 'POST',
@@ -46,7 +53,7 @@ export default function MessageApp() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [greetingMessage]);
+  }, []);
 
   useEffect(() => {
     // Initialize socket only if access token exists
@@ -127,28 +134,49 @@ export default function MessageApp() {
         <div className="flex flex-col w-1/4 bg-slate-400 p-4 rounded-lg shadow-md h-full">
           <h1 className="text-xl font-semibold text-white mb-4">Friends</h1>
           <ul className="space-y-2">
-            {friend_ids.map((name, index) => (
+            {friend_ids.map((friendWithRoom, index) => (
               <li key={index}>
                 <div className="flex items-center space-x-3">
                   <button
                     className="w-full text-left text-white hover:bg-slate-600 p-2 rounded-md transition-all duration-200 ease-in-out"
                     onClick={() => {
-                      setShowChat(true);
                       setIsRandomChat(false);
+                      setFriends([...friends, friendWithRoom])
                     }}
                   >
-                    {name}
+                    {
+                      friendWithRoom.name
+                    }
                   </button>
                 </div>
               </li>
             ))}
           </ul>
         </div>
+        {
+          !isRandomChat && friends.length > 0 
+          ? friends.map((f:friendWithRoom,index:number) => {
+            return (
+              socket && (
+                <div key={index}>
+                  <Messages 
+                  socket={socket}
+                  roomId={f.roomId}
+                  user_guest={f.name}
+                  id={f.id}
+                  isRandomChat={false} // New prop to control size
+                />
+                </div>
+                
+              )
+            )
+          })
+          :null
+            
+        }
+        {MessageModule(showChat,handleStartChat,greetingMessage,socket,isRandomChat)}
 
-        {/* Main Content */}
-        <div className="flex flex-1 justify-center items-center p-4 bg-gray-100">
-          {MessageModule(showChat, handleStartChat, greetingMessage, socket,isRandomChat)}
-        </div>
+       
       </div>
     </div>
   );

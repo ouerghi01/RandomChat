@@ -31,21 +31,39 @@ export async function POST(req:Request) {
             friend.sender_id === userId ? friend.receiver_id : friend.sender_id
         )
         const friend_distinct = [...new Set(friendIds)];
-        const friend_names = await Promise.all(friend_distinct.filter(friendId => friendId !== null).map(
+        
+        const friendsWithRooms = await Promise.all(friend_distinct.filter(friendId => friendId !== null).map(
             async friendId => {
             const user = await prisma.users.findUnique({
-                where: { 
-                    id: friendId
-                 },
-                select: { name: true }
+            where: { 
+                id: friendId
+             },
+            select: { 
+            email: true,
+            id: true
+             }
             });
-            console.log(user);
-
-            return user?.name || null;
+            const room = await prisma.rooms.findFirst({
+            where: {
+                OR: [
+                { sender_id: friendId },
+                { receiver_id: friendId }
+                ]
+            },
+            select: {
+                id: true,
+                
+            }
+            })
+         
+            if (user && room) {
+            return { name: user.email, id: user.id, roomId: room.id };
+            }
+            return null;
         }));
         
 
-        return new Response(JSON.stringify({ friends: friend_names }), {
+        return new Response(JSON.stringify({ friends: friendsWithRooms }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
         });

@@ -107,7 +107,7 @@ const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isR
 
   return (
     <Card style={{
-      width: isRandomChat ? '1200px' : '90%',  // Larger for random chat
+      width: isRandomChat ? '1200px' : '500px',  // Larger for random chat
       maxWidth: isRandomChat ? '800px' : '500px',  // Conditional size
       height: isRandomChat ? '85vh' : '70vh',  // Adjust height
       margin: '0 auto',
