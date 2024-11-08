@@ -107,9 +107,9 @@ const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isR
 
   return (
     <Card style={{
-      width: isRandomChat ? '1200px' : '500px',  // Larger for random chat
+      width: isRandomChat ? '1200px' : '350px',  // Larger for random chat
       maxWidth: isRandomChat ? '800px' : '500px',  // Conditional size
-      height: isRandomChat ? '85vh' : '70vh',  // Adjust height
+      height: isRandomChat ? '85vh' : '55vh',  // Adjust height
       margin: '0 auto',
       display: 'flex',
       flexDirection: 'column',
@@ -192,9 +192,11 @@ const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isR
       <CardFooter style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>
         <form onSubmit={(e) => {
           e.preventDefault();
-          if (message.trim()) {
-            socket.emit('send_message', { content: message, roomId });
+          if (message.trim() && roomId !="") {
+            socket.emit('send_message', { content: message, roomId, date_created: new Date() });
             setMessage("");
+          }else{
+            socket.emit("send_message_to_user",{message:message,receiver:id,date_created:new Date()});
           }
         }} style={{ display: 'flex', width: '100%' }}>
           <Input

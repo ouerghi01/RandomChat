@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req:Request) {
     const { userId } = await req.json(); // Use req.json() to parse the request body
+    console.log(userId);
 
     if (!userId) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -26,7 +27,6 @@ export async function POST(req:Request) {
             }
         });
         
-        // Map to get only the IDs that are not equal to userId
         const friendIds = friends.map(friend =>
             friend.sender_id === userId ? friend.receiver_id : friend.sender_id
         )
@@ -43,21 +43,11 @@ export async function POST(req:Request) {
             id: true
              }
             });
-            const room = await prisma.rooms.findFirst({
-            where: {
-                OR: [
-                { sender_id: friendId },
-                { receiver_id: friendId }
-                ]
-            },
-            select: {
-                id: true,
-                
-            }
-            })
+            
          
-            if (user && room) {
-            return { name: user.email, id: user.id, roomId: room.id };
+            if (user ) {
+            console.log(user);
+            return { name: user.email, id: user.id };
             }
             return null;
         }));

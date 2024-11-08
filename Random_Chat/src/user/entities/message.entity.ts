@@ -6,6 +6,8 @@ export class Message{
     id: number;
     @Column({ type: 'text' })
     content: string;
+    @Column({ type: "date", default: () => "CURRENT_TIMESTAMP" })
+    date_created: Date;
     
 
 }

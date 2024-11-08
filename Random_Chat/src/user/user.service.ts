@@ -59,8 +59,14 @@ export class UserService {
   }
   public async acceptFriendship(sender: User, receiver: User): Promise<void> {
     const friendship = await this.FriendshipRepository.findOneBy({sender, receiver});
-    friendship.accepted = true;
-    await this.FriendshipRepository.save(friendship);
+    const friendship1 = await this.FriendshipRepository.findOneBy({sender:receiver, receiver:sender});
+    if(friendship!=null){
+      friendship.accepted = true;
+      await this.FriendshipRepository.save(friendship);
+    }else{
+      friendship1.accepted = true;
+      await this.FriendshipRepository.save(friendship1);
+    }
   }
   public findByToken(token: string): Promise<Token> {
     return this.tokenRepository.findOneBy({token})
@@ -93,6 +99,7 @@ export class UserService {
   async saveMessage(message_dto :MessageDto): Promise<Message> {
     const message = new Message();
     message.content = message_dto.content;
+    message.date_created = message_dto.date_created;
     await this.messageRepository.save(message);
     return message;
   }

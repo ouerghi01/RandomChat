@@ -10,6 +10,13 @@ import { Message } from "src/user/entities/message.entity";
 interface Message_int {
   content: string;
   roomId: string;
+  date_created:Date;
+}
+interface Message_user {
+  message: string;
+  receiver: number;
+  date_created:Date;
+
 }
 @WebSocketGateway(3001, { transports: ['websocket'] }) // Enable CORS for WebSocket
 export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
@@ -54,7 +61,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
     }
   }
   @SubscribeMessage('send_message')
-  async listenForMessages(@MessageBody() message:Message_int,@ConnectedSocket() socket: Socket) {
+  async listenForMessages(@MessageBody() message:Message_int ,@ConnectedSocket() socket: Socket) {
     try {
       const message_new :Message_int=message;
       socket.join(message_new.roomId);
@@ -66,7 +73,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         sender: user.email,
         socket_id: socket.id
       });
-      let  message_dto = new MessageDto(message_new.content);
+      let  message_dto = new MessageDto(message_new.content,message_new.date_created);
       let message_entity=await this.userService.saveMessage(message_dto);
       user.message=message_entity;
       await this.userService.saveUser(user);
@@ -101,6 +108,40 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   @SubscribeMessage('find_random_chat')
   async randomUserMessage(@ConnectedSocket() socket: Socket) {
     await this.initiateRandomConversation(socket);
+  }
+  @SubscribeMessage('send_message_to_user')
+  async sendMessageToUser(@ConnectedSocket() socket: Socket, @MessageBody() message: Message_user) {
+    const user = await this.chatsService.getUserFromSocket(socket);
+    if(user!=null){
+    const friend = await this.userService.findOne(message.receiver);
+    if (friend != null) {
+      const roomId = this.generateRoomId(user.id, friend.id);
+      socket.join(roomId);
+      const friendSocket = this.map.get(friend.id);
+      if (friendSocket != null) {
+        friendSocket.join(roomId);
+        this.server.to(roomId).emit('send_message', {
+          content: message.message,
+          sender: user.email,
+          roomId: roomId
+        });
+        let  message_dto = new MessageDto(message.message,message.date_created);
+        let message_entity=await this.userService.saveMessage(message_dto);
+        user.message=message_entity;
+        await this.userService.saveUser(user);
+        
+      } else {
+        this.server.to(socket.id).emit('notification', {
+          message: 'The user you are trying to connect with is not online.'
+        });
+      }
+    } else {
+      this.server.to(socket.id).emit('notification', {
+        message: 'The user you are trying to connect with does not exist.'
+      });
+    }
+  }
+
   }
   @SubscribeMessage('accept_friend')
   async acceptFriend(@ConnectedSocket() socket: Socket, @MessageBody() friendId: number) {
@@ -242,6 +283,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         const random_user = await this.chatsService.getUserFromSocket(random_socket)
         if (random_socket != null) {
         const roomId = this.generateRoomId(user.id, random_user_id);
+        console.log(roomId);
         socket.join(roomId);
         random_socket.join(roomId);
         this.server.to(random_socket.id).emit('find_random_chat', {
@@ -259,6 +301,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         });
 
         this.userService.createRoom(roomId, user, random_user);
+        console.log(roomId);
         this.waitingQueue.pop();
         }
       } else {
