@@ -30,7 +30,6 @@ interface notification {
 }
 const Messages: React.FC<MessagesProps> = React.memo((props) => {
   const { socket, roomId, user_guest, id, isRandomChat } = props;
-  console.log(props)
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<IMsgDataTypes[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -40,13 +39,17 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
 
   useEffect(() => {
     socket.on('send_message', (data: IMsgDataTypes) => {
-      console.log(data.roomId === roomId)
+      console.log(data);
       if(data.roomId === roomId) setMessages((prevMessages) => [...prevMessages, data]);
+      else{
+        console.log(roomId)
+        
+      }
     });
     return () => {
       socket.off('send_message');
     };
-  }, [socket,roomId]);
+  }, [socket, roomId]);
 
   useEffect(() => {
     socket.on('notification',(data:notification) => {
@@ -92,7 +95,6 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
         .then(response => response.json())
         .then(data => {
           setActive(data)
-          console.log(data)
         })
         .catch(error => {
           console.log(error)

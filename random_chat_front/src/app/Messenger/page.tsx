@@ -4,6 +4,8 @@ import io from 'socket.io-client';
 import Messages from './Components/messanger';
 import { Navbar, NavbarBrand, NavbarContent, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar } from "@nextui-org/react";
 import "./Components/message.css";
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { setFriend } from '@/lib/features/Messagiere/mesgSlice';
 
 interface InitialsMessage {
   message: string;
@@ -11,7 +13,7 @@ interface InitialsMessage {
   roomId: string;
   id: number;
 }
-interface friendWithRoom {
+export interface friendWithRoom {
   id: number;
   name: string;
   roomId: string;
@@ -24,10 +26,10 @@ export default function MessageApp() {
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
   const [user_email, setUser_email] = useState<string>('');
-  
+  const dispatch = useAppDispatch()
   const [isRandomChat, setIsRandomChat] = useState<boolean>(true);
   const [friend_ids, setFriend_ids] = useState<friendWithRoom[]>([]);
-  const  [friends,setFriends] = useState<friendWithRoom[]>([]);
+  const friends = useAppSelector((state) => state.friends.friends);
   async function fetchFriend(userId: number) {
     const response = await fetch('/api/friends/', {
       method: 'POST',
@@ -43,7 +45,6 @@ export default function MessageApp() {
     }
 
     const data = await response.json();
-    console.log(data);
     return data;
   }
 
@@ -146,7 +147,7 @@ export default function MessageApp() {
                     className="w-full text-left text-white hover:bg-slate-600 p-2 rounded-md transition-all duration-200 ease-in-out"
                     onClick={() => {
                       setIsRandomChat(false);
-                      setFriends([...friends, friendWithRoom])
+                      dispatch(setFriend(friendWithRoom))
                     }}
                   >
                     {
@@ -160,30 +161,31 @@ export default function MessageApp() {
           }
           </ul>
         </div>
-        <div className='relative flex flex-row gap-5 top-72  left-10'>
-        {
-          !isRandomChat && 
-          [...new Set(friends)].length > 0 &&
-          [...new Set(friends)].map((f:friendWithRoom) => {
-            return (
-              socket && (
-                <div key={f.id}>
-                  <Messages 
-                  socket={socket}
-                  roomId={f.roomId}
-                  user_guest={f.name}
-                  id={f.id}
-                  isRandomChat={false}
-                  />
-                </div>
-                
-              )
-            )
-          })
-        
-            
-        }
-        </div> 
+        <div className='relative flex flex-row gap-5 top-72 left-10'>
+         {!isRandomChat && [...new Set(friends)].length > 0 && (() => {
+          const renderedMessages: JSX.Element[] = [];
+
+          [...new Set(friends)].forEach((f: friendWithRoom) => {
+          if (socket) {
+          console.log(friends)
+          renderedMessages.push(
+          <div key={`${f.id}-${f.roomId}`}>
+            <Messages 
+              socket={socket}
+              roomId={f.roomId}
+              user_guest={f.name}
+              id={f.id}
+              isRandomChat={false}
+            />
+          </div>
+        );
+      }
+    });
+
+    return renderedMessages; // Return the array of components
+  })()}
+</div>
+
         
         {MessageModule(showChat,handleStartChat,greetingMessage,socket,isRandomChat)}
 
