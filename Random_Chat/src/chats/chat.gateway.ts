@@ -11,11 +11,13 @@ interface Message_int {
   content: string;
   roomId: string;
   date_created:Date;
+  receiver_id: number;
 }
 interface Message_user {
   message: string;
-  receiver: number;
+  receiver_id: number;
   date_created:Date;
+  roomId: string;
 
 }
 @WebSocketGateway(3001, { transports: ['websocket'] }) // Enable CORS for WebSocket
@@ -64,6 +66,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   async listenForMessages(@MessageBody() message:Message_int ,@ConnectedSocket() socket: Socket) {
     try {
       const message_new :Message_int=message;
+      console.log(message_new)
       socket.join(message_new.roomId);
 
       const user = await this.chatsService.getUserFromSocket(socket);
@@ -71,7 +74,8 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
       this.server.to(message_new.roomId).emit('send_message', {
         content: message_new.content,
         sender: user.email,
-        socket_id: socket.id
+        roomId: message_new.roomId,
+        receiver_id: message_new.receiver_id,
       });
       let  message_dto = new MessageDto(message_new.content,message_new.date_created);
       let message_entity=await this.userService.saveMessage(message_dto);
@@ -113,9 +117,10 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   async sendMessageToUser(@ConnectedSocket() socket: Socket, @MessageBody() message: Message_user) {
     const user = await this.chatsService.getUserFromSocket(socket);
     if(user!=null){
-    const friend = await this.userService.findOne(message.receiver);
+    const friend = await this.userService.findOne(message.receiver_id);
     if (friend != null) {
-      const roomId = this.generateRoomId(user.id, friend.id);
+      const roomId = message.roomId;
+      
       socket.join(roomId);
       const friendSocket = this.map.get(friend.id);
       if (friendSocket != null) {
@@ -123,7 +128,8 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         this.server.to(roomId).emit('send_message', {
           content: message.message,
           sender: user.email,
-          roomId: roomId
+          roomId: roomId,
+          receiver_id: friend.id
         });
         let  message_dto = new MessageDto(message.message,message.date_created);
         let message_entity=await this.userService.saveMessage(message_dto);

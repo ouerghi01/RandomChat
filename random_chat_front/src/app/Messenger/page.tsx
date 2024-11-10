@@ -14,8 +14,10 @@ interface InitialsMessage {
 interface friendWithRoom {
   id: number;
   name: string;
+  roomId: string;
  
 }
+
 
 export default function MessageApp() {
   const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
@@ -41,6 +43,7 @@ export default function MessageApp() {
     }
 
     const data = await response.json();
+    console.log(data);
     return data;
   }
 
@@ -161,17 +164,17 @@ export default function MessageApp() {
         {
           !isRandomChat && 
           [...new Set(friends)].length > 0 &&
-          [...new Set(friends)].map((f:friendWithRoom,index:number) => {
+          [...new Set(friends)].map((f:friendWithRoom) => {
             return (
               socket && (
-                <div key={index}>
+                <div key={f.id}>
                   <Messages 
                   socket={socket}
-                  roomId=""
+                  roomId={f.roomId}
                   user_guest={f.name}
                   id={f.id}
-                  isRandomChat={false} // New prop to control size
-                />
+                  isRandomChat={false}
+                  />
                 </div>
                 
               )

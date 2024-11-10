@@ -9,6 +9,7 @@ import { MessageDto } from './dto/message.dto';
 import { Message } from './entities/message.entity';
 import { Room } from './entities/room.entity';
 import { Friendship } from './entities/friend.entity';
+import { send } from 'process';
 
 @Injectable()
 export class UserService {
@@ -48,14 +49,13 @@ export class UserService {
     await this.FriendshipRepository.save(friendship);
   }
   public async checkFriendship(user:User,friend:User): Promise<boolean> {
-    const friendship1 = await this.FriendshipRepository.findOneBy({sender:user,receiver:friend});
-    const friendship2 = await this.FriendshipRepository.findOneBy({sender:friend,receiver:user});
-    if(friendship1!=null || friendship2!=null){
-      if (friendship1.accepted==true || friendship2.accepted==true){
-        return true;
-      }
-    }
-    return false;
+    const friendship = await this.FriendshipRepository.findOne({
+      where: [
+      { sender: user, receiver: friend, accepted: true },
+      { sender: friend, receiver: user, accepted: true }
+      ]
+    });
+    return !!friendship;
   }
   public async acceptFriendship(sender: User, receiver: User): Promise<void> {
     const friendship = await this.FriendshipRepository.findOneBy({sender, receiver});
@@ -103,12 +103,42 @@ export class UserService {
     await this.messageRepository.save(message);
     return message;
   }
-  async createRoom (roomId:string,sender:User,rec:User): Promise<void> {
-    if(this.roomRepository.findOneBy({id:roomId})==null){
-    const room:Room = new Room(roomId,sender,rec);
-    await this.roomRepository.save(room);
+  async createRoom(roomId: string, sender: User, rec: User): Promise<void> {
+    const existingRoom = await this.roomRepository.findOne({
+        where: { id: roomId },
+        relations: ['users'],
+    });
+
+    if (existingRoom) {
+        console.log("Room already exists.");
+        return;
     }
-  }
+
+    const room = new Room();
+    room.id = roomId;
+    room.users = [sender, rec];
+    room.sender = sender;
+    room.receiver = rec;
+
+    await this.roomRepository.manager.transaction(async (transactionalEntityManager) => {
+        await transactionalEntityManager.save(Room, room);
+
+        if (!sender.rooms) sender.rooms = [];
+        if (!rec.rooms) rec.rooms = [];
+
+        sender.rooms.push(room);
+        rec.rooms.push(room);
+
+        await transactionalEntityManager.save(User, sender);
+        await transactionalEntityManager.save(User, rec);
+    });
+
+    console.log("Room created and users added.");
+}
+
+
+  
+  
   async getAllMessages(): Promise<Message[]> {
     return this.messageRepository.find();
   }

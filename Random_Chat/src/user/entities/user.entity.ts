@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn ,ManyToOne, OneToMany, OneToOne, JoinColumn} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn ,ManyToOne, OneToMany, OneToOne, JoinColumn, ManyToMany, JoinTable} from "typeorm";
 import { Token } from "./token.entity";
 import { Message } from "./message.entity";
 import { Room } from "./room.entity";
@@ -20,13 +20,19 @@ export class User {
     password: string;
     @OneToMany(() => Token, token => token.id)
     tokens: Token[];
+    
     @OneToOne(() => Message)
     @JoinColumn()
     message: Message;
-    @OneToOne(() => Room, room => room.sender)
-    @JoinColumn()
-    room: Room;
+    
+    @OneToMany(() => Room, (room) => room.sender)
+    send_rooms: Room[];
+
+    @OneToMany(() => Room, (room) => room.receiver)
+    received_rooms: Room[];
     @OneToMany(() => Friendship, (friendship) => friendship.sender)
+    @ManyToMany(() => Room, (room) => room.users)
+    rooms: Room[];
     sentFriendRequests: Friendship[];
 
     @OneToMany(() => Friendship, (friendship) => friendship.receiver)

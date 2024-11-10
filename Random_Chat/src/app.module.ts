@@ -18,7 +18,7 @@ import { Friendship } from './user/entities/friend.entity';
       password: 'postgres',
       username: 'postgres',
       database: 'postgres',
-      entities: [User,Token,Message,Room,Friendship],
+      entities: [User,Token,Message,Room,Friendship,],
       synchronize: true,
       logging: true,
     }),

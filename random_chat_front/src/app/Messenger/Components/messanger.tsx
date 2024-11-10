@@ -14,17 +14,23 @@ interface MessagesProps {
 
 interface IMsgDataTypes {
   sender: string | number;
-  socket_id: string;
+  receiver_id: number;
   content: string;
+  roomId: string;
 }
-interface IMsgDataTypes {
-  message: string;
-}
+
 interface friendship {
   friendship: boolean;
 }
-
-const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isRandomChat}) => {
+interface notification_friendship {
+  message: string;
+}
+interface notification {
+  message: string;
+}
+const Messages: React.FC<MessagesProps> = React.memo((props) => {
+  const { socket, roomId, user_guest, id, isRandomChat } = props;
+  console.log(props)
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<IMsgDataTypes[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -34,19 +40,23 @@ const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isR
 
   useEffect(() => {
     socket.on('send_message', (data: IMsgDataTypes) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
+      console.log(data.roomId === roomId)
+      if(data.roomId === roomId) setMessages((prevMessages) => [...prevMessages, data]);
     });
     return () => {
       socket.off('send_message');
     };
-  }, [socket]);
+  }, [socket,roomId]);
+
   useEffect(() => {
-    socket.on('notification',(data:IMsgDataTypes) => {
+    socket.on('notification',(data:notification) => {
       alert(data.message);
 
     })
+
     
   }, [socket]);
+  
   useEffect(()=> {
    socket.emit('check_friendship',id);
    socket.on('check_friendship', (data:friendship) => {
@@ -92,16 +102,14 @@ const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isR
     return () => clearTimeout(timer);
   }, [id]);
   useEffect(() => {
-    socket.on('notification_friendship', (data:IMsgDataTypes) => {
+    socket.on('notification_friendship', (data:notification_friendship) => {
       setSendRequest(data.message);
     });
     return () => {
       socket.off('receive_message');
     };
   },[socket]);
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  
 
   const userEmail = localStorage.getItem('user_email');
 
@@ -192,11 +200,13 @@ const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isR
       <CardFooter style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>
         <form onSubmit={(e) => {
           e.preventDefault();
-          if (message.trim() && roomId !="") {
-            socket.emit('send_message', { content: message, roomId, date_created: new Date() });
+          if (message.trim() && isRandomChat) {
+            socket.emit('send_message', { content: message, roomId,receiver_id:id, date_created: new Date() });
             setMessage("");
           }else{
-            socket.emit("send_message_to_user",{message:message,receiver:id,date_created:new Date()});
+            console.log({message:message,receiver:id,roomId,date_created:new Date()});
+            socket.emit("send_message_to_user",{message:message,receiver_id:id,roomId,date_created:new Date()});
+            setMessage("");
           }
         }} style={{ display: 'flex', width: '100%' }}>
           <Input
@@ -219,7 +229,9 @@ const Messages: React.FC<MessagesProps> = ({ socket, roomId, user_guest, id ,isR
       </CardFooter>
     </Card>
   );
-};
+});
+
+Messages.displayName = "Messages";
 
 export default Messages;
 
