@@ -21,9 +21,10 @@ export class User {
     @OneToMany(() => Token, token => token.id)
     tokens: Token[];
     
-    @OneToOne(() => Message)
-    @JoinColumn()
-    message: Message;
+    @OneToMany(() => Message, (message) => message.receiver)
+    messages_receiver: Message[];
+    @OneToMany(() => Message, (message) => message.sender)
+    messages_sender: Message[];
     
     @OneToMany(() => Room, (room) => room.sender)
     send_rooms: Room[];

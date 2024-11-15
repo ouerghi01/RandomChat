@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { Card, CardHeader, CardBody, CardFooter, Divider, Input, Button, Avatar } from "@nextui-org/react";
 import { Socket } from "socket.io-client";
 
@@ -17,6 +18,7 @@ interface IMsgDataTypes {
   receiver_id: number;
   content: string;
   roomId: string;
+  date_created: Date;
 }
 
 interface friendship {
@@ -28,7 +30,7 @@ interface notification_friendship {
 interface notification {
   message: string;
 }
-const Messages: React.FC<MessagesProps> = React.memo((props) => {
+const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   const { socket, roomId, user_guest, id, isRandomChat } = props;
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<IMsgDataTypes[]>([]);
@@ -36,20 +38,43 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
   const [active, setActive] = useState<boolean>(false);
   const [send_request, setSendRequest] = useState<string>("");
   const [isAccepted, setIsAccepted] = useState<boolean>(false);
-
-  useEffect(() => {
-    socket.on('send_message', (data: IMsgDataTypes) => {
-      console.log(data);
-      if(data.roomId === roomId) setMessages((prevMessages) => [...prevMessages, data]);
-      else{
-        console.log(roomId)
-        
-      }
+  const [send_invite, setSendInvite] = useState<boolean>(false);
+  const fetch_messages = async () =>  {
+    const response = await fetch('./api/messages/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ roomId })
     });
-    return () => {
-      socket.off('send_message');
-    };
-  }, [socket, roomId]);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+    const data = await response.json();
+    return data;
+
+  }
+
+useEffect(() => {
+    fetch_messages().then(data => {
+      setMessages(data);
+    });
+
+}, []);
+ 
+  useEffect(() => {
+  const eventName = `send_message`;
+
+  socket.on(eventName, (data: IMsgDataTypes) => {
+    setMessages((prevMessages) => [...prevMessages, data]);
+  });
+
+  return () => {
+    socket.off(eventName);
+  };
+}, [socket, roomId]);
+
 
   useEffect(() => {
     socket.on('notification',(data:notification) => {
@@ -117,9 +142,9 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
 
   return (
     <Card style={{
-      width: isRandomChat ? '1200px' : '350px',  // Larger for random chat
-      maxWidth: isRandomChat ? '800px' : '500px',  // Conditional size
-      height: isRandomChat ? '85vh' : '55vh',  // Adjust height
+      width: '1200px',  // Larger for random chat
+      maxWidth:  '800px' ,  // Conditional size
+      height: '85vh',  // Adjust height
       margin: '0 auto',
       display: 'flex',
       flexDirection: 'column',
@@ -127,7 +152,7 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
       borderRadius: '10px',
       overflow: 'hidden'
     }}>
-      <CardHeader style={{ display: 'flex', alignItems: 'center', padding: '10px', backgroundColor: '#075E54', color: 'white' }}>
+      <CardHeader className='bg-slate-700' style={{ display: 'flex', alignItems: 'center', padding: '10px', color: 'white' }}>
         <Avatar
           isBordered
           color="secondary"
@@ -137,16 +162,35 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
         <div style={{ marginLeft: '10px' }}>
           <p style={{ fontSize: '1rem', fontWeight: 'bold' }}>{user_guest || "Guest User"}</p>
         </div>
-        <div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
             {
             !isAccepted && (
               send_request !== 'accept' ? 
-              <Button color="primary" type="submit" style={{ marginLeft: '50px' }}
+              <Button 
+               color="secondary"
+                variant="solid"
+                style={{
+                  backgroundColor: '#28a745',
+                  marginRight: '10px',
+                  color: send_invite ===true ? 'primary' : 'white'
+                }}
+              type="submit" 
                 onClick={() => {
+                setSendInvite(true);
                 socket.emit('add_friend', id);
-                }}>Add Friend</Button>
+                }}>{
+                  send_invite === true ? 'Request Sent' : 'Add Friend'
+                }</Button>
               : 
-              <Button onClick={() => {
+              <Button 
+                color="primary"
+                variant="solid"
+                style={{
+                  backgroundColor: '#007bff',
+                  marginRight: '10px',
+                  color: 'white'
+                }}
+              onClick={() => {
                 socket.emit('accept_friend', id);
               }}>Accept</Button>
             )
@@ -190,7 +234,7 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
                     marginTop: '5px',
                     textAlign: 'right'
                   }}>
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(msg.date_created).toLocaleString()}
                   </span>
                 </div>
               </li>
@@ -206,7 +250,7 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
             socket.emit('send_message', { content: message, roomId,receiver_id:id, date_created: new Date() });
             setMessage("");
           }else{
-            console.log({message:message,receiver:id,roomId,date_created:new Date()});
+
             socket.emit("send_message_to_user",{message:message,receiver_id:id,roomId,date_created:new Date()});
             setMessage("");
           }
@@ -233,8 +277,8 @@ const Messages: React.FC<MessagesProps> = React.memo((props) => {
   );
 });
 
-Messages.displayName = "Messages";
+DiscussionComponent.displayName = "DiscussionComponent";
 
-export default Messages;
+export default DiscussionComponent;
 
 

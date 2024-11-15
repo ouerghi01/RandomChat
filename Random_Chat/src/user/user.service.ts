@@ -100,6 +100,10 @@ export class UserService {
     const message = new Message();
     message.content = message_dto.content;
     message.date_created = message_dto.date_created;
+    message.room = await this.roomRepository.findOne({ where: { id: message_dto.roomId } });
+    message.sender = message_dto.user;
+    message.receiver = message_dto.friend;
+
     await this.messageRepository.save(message);
     return message;
   }

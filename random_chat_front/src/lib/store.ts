@@ -4,14 +4,17 @@ import { friendsSlice } from './features/Messagiere/mesgSlice'
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      // Add reducers here
-      // Example:
       friends: friendsSlice.reducer,
-      // messages: messagesSlice.reducer,
-      // // Add more reducers as needed
-    }
-  })
-}
+      // Add more reducers as needed
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredPaths: ['friends.friends'], // Specify the path to ignore
+        },
+      }),
+  });
+};
 
 // Infer the type of makeStore
 export type AppStore = ReturnType<typeof makeStore>

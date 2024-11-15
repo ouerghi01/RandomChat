@@ -66,7 +66,6 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   async listenForMessages(@MessageBody() message:Message_int ,@ConnectedSocket() socket: Socket) {
     try {
       const message_new :Message_int=message;
-      console.log(message_new)
       socket.join(message_new.roomId);
 
       const user = await this.chatsService.getUserFromSocket(socket);
@@ -76,11 +75,14 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         sender: user.email,
         roomId: message_new.roomId,
         receiver_id: message_new.receiver_id,
+        date_created:message_new.date_created
       });
-      let  message_dto = new MessageDto(message_new.content,message_new.date_created);
-      let message_entity=await this.userService.saveMessage(message_dto);
-      user.message=message_entity;
-      await this.userService.saveUser(user);
+      const friend = await this.userService.findOne(message_new.receiver_id);
+      
+      let  message_dto = new MessageDto(message_new.content,message.date_created,message_new.roomId,user,friend);
+      await this.userService.saveMessage(message_dto);
+      
+     
       
       
       }
@@ -129,12 +131,13 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
           content: message.message,
           sender: user.email,
           roomId: roomId,
-          receiver_id: friend.id
+          receiver_id: friend.id,
+          date_created:message.date_created
         });
-        let  message_dto = new MessageDto(message.message,message.date_created);
-        let message_entity=await this.userService.saveMessage(message_dto);
-        user.message=message_entity;
-        await this.userService.saveUser(user);
+      
+      let  message_dto = new MessageDto(message.message,message.date_created,message.roomId,user,friend);
+      await this.userService.saveMessage(message_dto);
+        
         
       } else {
         this.server.to(socket.id).emit('notification', {
@@ -281,6 +284,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
 
   private async initiateRandomConversation(socket:Socket): Promise<void> {
     const user = await this.chatsService.getUserFromSocket(socket)
+    console.log(user);
     if (user != null) {
       try {
       if (this.waitingQueue.length > 0) {

@@ -1,5 +1,6 @@
 import { Entity, PrimaryColumn, ManyToMany, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinTable, Column, JoinColumn, CreateDateColumn } from 'typeorm';
 import { User } from './user.entity';
+import { Message } from './message.entity';
 
 @Entity("rooms")
 export class Room {
@@ -14,6 +15,9 @@ export class Room {
   @ManyToOne(() => User, (user) => user.receivedFriendRequests)
   @JoinColumn({ name: "receiver_id" })
   receiver: User;
+  @OneToMany(() => Message, (msg) => msg.room,{ nullable: true })
+  messages: Message[];
+
 
   @ManyToMany(() => User, (user) => user.rooms)
   @JoinTable({

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import * as React from "react";
 import {NextUIProvider} from "@nextui-org/react";
 import StoreProvider from "./StoreProvider";
+import { SocketProvider } from "./contexts/SocketContext";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
 
       <NextUIProvider>
-        {children}
+        <SocketProvider >
+          {children}
+        </SocketProvider>
       </NextUIProvider>
       </body>
     </html>
