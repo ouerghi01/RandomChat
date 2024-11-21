@@ -6,7 +6,7 @@ import "./Components/message.css";
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setFriend } from '@/lib/features/Messagiere/mesgSlice';
 import { useSocket } from '../contexts/SocketContext';
-import Loading from './loading';
+import Loading from './Loading_cus';
 
 interface InitialsMessage {
   message: string;
@@ -21,9 +21,33 @@ export interface friendWithRoom {
  
 }
 
+ async function verifyUserToken(token:string) {
+  const response = await fetch('http://localhost:3006/auth/verify', {
+      method: 'POST', // Use the appropriate HTTP method
+      headers: {
+          'Content-Type': 'application/json', // Specify JSON content
+          Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+      },
+      body: JSON.stringify({}),
+  });
 
+  const data = await response.json();
+
+  if (!response.ok) {
+      console.error('Token verification failed:', data.error);
+  } else {
+      console.log('Token verified successfully:', data);
+  }
+}
 function Message() {
   const socket = useSocket();
+  /**
+   * Retrieves the 'access_token' from the local storage.
+   *
+   * @constant {string | null} token - The access token stored in the local storage, or null if it doesn't exist.
+   */
+  const token = localStorage.getItem('access_token');
+
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
   const user_email = localStorage.getItem('user_email')
@@ -34,6 +58,7 @@ function Message() {
 
  
   async function fetchFriend(userId: number) {
+    verifyUserToken(token || '');
     const response = await fetch('/api/friends/', {
       method: 'POST',
       headers: {
@@ -59,6 +84,7 @@ function Message() {
     }, 1000);
 
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
  
@@ -177,10 +203,10 @@ function MessageModule(showChat: boolean, friend: friendWithRoom | null, greetin
     <main className="h-full w-full flex justify-center items-center">
       {!showChat ? (
         <div className="flex gap-5 items-center justify-center relative top-10 left-5">
-          {/* Render friend chat component only if not random chat and valid friend data is provided */}
-          {!isRandomChat && friend && friend.roomId && friend.id && socket && (
+          {!isRandomChat && friend && friend.roomId && friend.id && socket ? (
             <div className="relative">
               <DiscussionComponent
+                key={friend.id} // Add this key
                 socket={socket}
                 roomId={friend.roomId}
                 user_guest={friend.name}
@@ -188,11 +214,12 @@ function MessageModule(showChat: boolean, friend: friendWithRoom | null, greetin
                 id={friend.id}
               />
             </div>
-          )}
+          ): <Loading/>
+        }
         </div>
       ) : (
         /* Render greeting message chat if showChat is true and greeting message exists */
-        greetingMessage && greetingMessage.user_id && socket && greetingMessage.roomId ? (
+        greetingMessage && greetingMessage.user_id && socket && greetingMessage.roomId && (
           <div className="relative">
             <DiscussionComponent
               socket={socket}
@@ -202,7 +229,7 @@ function MessageModule(showChat: boolean, friend: friendWithRoom | null, greetin
               isRandomChat={isRandomChat}
             />
           </div>
-        ):<Loading/>
+        )
       )}
     </main>
   );

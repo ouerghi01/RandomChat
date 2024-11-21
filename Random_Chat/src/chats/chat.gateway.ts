@@ -293,7 +293,8 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         const random_user = await this.chatsService.getUserFromSocket(random_socket)
         if (random_socket != null) {
         const roomId = this.generateRoomId(user.id, random_user_id);
-        console.log(roomId);
+        this.userService.createRoom(roomId, user, random_user);
+
         socket.join(roomId);
         random_socket.join(roomId);
         this.server.to(random_socket.id).emit('find_random_chat', {
@@ -310,8 +311,6 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
           roomId: roomId
         });
 
-        this.userService.createRoom(roomId, user, random_user);
-        console.log(roomId);
         this.waitingQueue.pop();
         }
       } else {

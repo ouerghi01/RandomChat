@@ -115,15 +115,13 @@ export class UserService {
 
     if (existingRoom) {
         console.log("Room already exists.");
-        return;
     }
-
+    else{
     const room = new Room();
     room.id = roomId;
     room.users = [sender, rec];
     room.sender = sender;
     room.receiver = rec;
-
     await this.roomRepository.manager.transaction(async (transactionalEntityManager) => {
         await transactionalEntityManager.save(Room, room);
 
@@ -138,6 +136,10 @@ export class UserService {
     });
 
     console.log("Room created and users added.");
+    }
+
+    
+    
 }
 
 

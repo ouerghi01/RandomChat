@@ -30,6 +30,24 @@ interface notification_friendship {
 interface notification {
   message: string;
 }
+async function verifyUserToken(token:string) {
+  const response = await fetch('http://localhost:3006/auth/verify', {
+      method: 'POST', // Use the appropriate HTTP method
+      headers: {
+          'Content-Type': 'application/json', // Specify JSON content
+          Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+      },
+      body: JSON.stringify({}),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+      console.error('Token verification failed:', data.error);
+  } else {
+      console.log('Token verified successfully:', data);
+  }
+}
 const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   const { socket, roomId, user_guest, id, isRandomChat } = props;
   const [message, setMessage] = useState("");
@@ -40,6 +58,8 @@ const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   const [isAccepted, setIsAccepted] = useState<boolean>(false);
   const [send_invite, setSendInvite] = useState<boolean>(false);
   const fetch_messages = async () =>  {
+    verifyUserToken(localStorage.getItem('access_token') || '');
+    
     const response = await fetch('./api/messages/', {
       method: 'POST',
       headers: {

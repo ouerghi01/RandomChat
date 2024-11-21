@@ -2,7 +2,9 @@
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
+      
     const { userId } = await req.json();
+    
 
     if (!userId) {
         return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -131,3 +133,5 @@ export async function POST(req: Request) {
         });
     }
 }
+
+

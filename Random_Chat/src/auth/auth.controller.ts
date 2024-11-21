@@ -15,6 +15,11 @@ export class AuthController {
     async sign_in(@Body() body: { email: string; password: string }) {
         return this.authService.sign_in(body.email, body.password);
     }
+    @Post('verify')
+    async verify(@Request() req) {
+        const token = req.headers.authorization.split(' ')[1];
+        return this.authService.getUserFromAuthenticationToken(token);
+    }
 
     @HttpCode(HttpStatus.OK)
     @SkipAuth()
