@@ -1,6 +1,7 @@
 'use client';
 import React, { memo, useEffect, useState } from 'react';
 import DiscussionComponent from './Components/messanger';
+import Cookies from 'js-cookie';
 import { Navbar, NavbarBrand, NavbarContent, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar } from "@nextui-org/react";
 import "./Components/message.css";
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -35,8 +36,10 @@ export interface friendWithRoom {
 
   if (!response.ok) {
       console.error('Token verification failed:', data.error);
+      return 
   } else {
       console.log('Token verified successfully:', data);
+      
   }
 }
 function Message() {
@@ -46,11 +49,11 @@ function Message() {
    *
    * @constant {string | null} token - The access token stored in the local storage, or null if it doesn't exist.
    */
-  const token = localStorage.getItem('access_token');
+  const token = Cookies.get('access_token');;
 
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
-  const user_email = localStorage.getItem('user_email')
+  const user_email = Cookies.get('user_email')
   const dispatch = useAppDispatch()
   const [isRandomChat, setIsRandomChat] = useState<boolean>(true);
   const [friend_ids, setFriend_ids] = useState<friendWithRoom[]>([]);
@@ -146,8 +149,12 @@ function Message() {
         <DropdownItem
           key="logout"
           color="danger"
-          onClick={() => {
+          onClick={async () => {
             localStorage.removeItem('access_token');
+            localStorage.clear();
+            
+            
+            sessionStorage.clear(); // Clear all keys in sessionStorage
             window.location.href = "/Authentication/login";
           }}
         >

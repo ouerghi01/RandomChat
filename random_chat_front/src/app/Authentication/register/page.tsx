@@ -43,7 +43,7 @@ export default function Register(): JSX.Element {
     setAge(0)
     setGender("")
     setConfirmPassword("")
-    window.location.href="http://localhost:3000/Authentication/login"
+    window.location.href="/Authentication/login"
 
   }
   return (

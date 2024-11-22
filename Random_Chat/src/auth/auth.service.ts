@@ -8,6 +8,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Token } from 'src/user/entities/token.entity';
 import { jwtConstants } from './constants';
+import { Request, Response } from 'express';
 @Injectable()
 export class AuthService {
     
@@ -24,6 +25,8 @@ export class AuthService {
         
         const access_token = await this.jwtService.signAsync(payload);
         await this.userService.storeTokenInRepository(access_token, user);
+       
+
         return {
             access_token: access_token,
             user_email: user.email,

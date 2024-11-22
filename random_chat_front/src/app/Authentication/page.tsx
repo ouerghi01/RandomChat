@@ -1,4 +1,4 @@
-'use client';
+'use server';
 export default function Authentication() : JSX.Element {
     return (
         <div style={{
