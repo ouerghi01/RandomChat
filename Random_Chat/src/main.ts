@@ -37,13 +37,14 @@ async function bootstrap() {
   const corsOptions =
     environment === 'development'
       ? {
-          origin: ['http://localhost:3000', 'http://192.168.1.6:3000'], // Frontend URLs
+          origin: ['http://localhost:3000', 'http://192.168.1.6:3000','http://next_js:3000'], // Frontend URLs
           methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
           allowedHeaders: ['Authorization', 'Content-Type'],
           credentials: true,
         }
       : {
-          origin: 'http://192.168.1.6:3000', // Production frontend URL
+         origin: ['http://localhost:3000', 'http://192.168.1.6:3000','http://next_js:3000'], // Frontend URLs
+
           methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
           allowedHeaders: ['Authorization', 'Content-Type'],
           credentials: true,
@@ -58,7 +59,6 @@ async function bootstrap() {
 
   // Listen on the specified port
   await app.listen(port);
-  console.log(`Application is running on: ${environment === 'production' ? 'https' : 'http'}://192.168.1.6:${port}`);
 }
 
 bootstrap();

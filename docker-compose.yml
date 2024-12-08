@@ -5,8 +5,8 @@ services:
       context: ./Random_Chat
     container_name: Random_Chat
     ports:
-      - "3006:3006"
-      - "3001:3001" # WebSocket
+      - "3006:3006"   # REST API
+      - "3001:3001"   # WebSocket
     depends_on:
       - postgres  # Ensure NestJS waits for PostgreSQL to be ready
     networks:
@@ -17,6 +17,7 @@ services:
       DB_USER: postgres
       DB_PASS: postgres
       DB_NAME: random_chat_db
+      NODE_ENV: production
 
   next_js:
     build:
@@ -27,9 +28,9 @@ services:
     networks:
       - app-network
     environment:
-      NEXT_PUBLIC_API_URL: http://nest_js:3006
-      NEXT_PUBLIC_API_URL_SOCKET: ws://nest_js:3001
-
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://nginx/api  # NGINX as the endpoint for REST API
+      NEXT_PUBLIC_API_URL_SOCKET: ws://nginx/ws  # NGINX as the WebSocket endpoint
 
   postgres:
     image: postgres:16
@@ -68,6 +69,3 @@ networks:
 
 volumes:
   postgres_data:
-
-    
-
