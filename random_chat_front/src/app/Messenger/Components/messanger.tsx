@@ -30,8 +30,9 @@ interface notification_friendship {
 interface notification {
   message: string;
 }
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 async function verifyUserToken(token:string) {
-  const response = await fetch('http://localhost:3006/auth/verify', {
+  const response = await fetch(`${API_BASE_URL}/auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
       headers: {
           'Content-Type': 'application/json', // Specify JSON content
@@ -132,7 +133,7 @@ useEffect(() => {
     const timer = setTimeout(() => {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      fetch(`http://localhost:3006/chats/getClients/${id}`, {
+      fetch(`${API_BASE_URL}/chats/getClients/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -1,13 +1,14 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { Cookie } from './app/actions';
 // Function to verify the user token
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 async function verifyUserToken(token: string): Promise<boolean> {
     if (!token) {
         return false;
     }
     
     try {
-        const response = await fetch('http://localhost:3006/auth/verify', {
+        const response = await fetch(`${API_BASE_URL}/auth/verify`, {
             method: 'POST', // Use the appropriate HTTP method
             headers: {
                 'Content-Type': 'application/json', // Specify JSON content
@@ -33,8 +34,8 @@ async function verifyUserToken(token: string): Promise<boolean> {
 
 export  default async  function middleware(req: NextRequest) {
     const cookie = new Cookie()
+    
     const token =await  cookie.getCookie('access_token')  
-    console.log(token);
     const isAuthenticated = await verifyUserToken(token?.value || '');
 
     // Check if the route is protected

@@ -1,5 +1,5 @@
 'use server';
-export default function Authentication() : JSX.Element {
+export default async function Authentication(): Promise<JSX.Element> {
     return (
         <div style={{
             display: 'flex',

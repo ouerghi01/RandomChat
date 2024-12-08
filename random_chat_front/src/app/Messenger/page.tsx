@@ -21,9 +21,10 @@ export interface friendWithRoom {
   roomId: string;
  
 }
-
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL
  async function verifyUserToken(token:string) {
-  const response = await fetch('http://localhost:3006/auth/verify', {
+  const response = await fetch(`${API_BASE_URL}/auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
       headers: {
           'Content-Type': 'application/json', // Specify JSON content
@@ -49,7 +50,8 @@ function Message() {
    *
    * @constant {string | null} token - The access token stored in the local storage, or null if it doesn't exist.
    */
-  const token = Cookies.get('access_token');;
+  const token = Cookies.get('access_token');
+  console.log(token)
 
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);

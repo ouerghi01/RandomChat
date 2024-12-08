@@ -2,7 +2,8 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import io, { Socket } from 'socket.io-client';
-
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL_SOCKET
 // Define the context type as Socket or null
 type SocketContextType = typeof Socket | null;
 
@@ -18,7 +19,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     
 
     // Initialize the socket connection with token if available
-    const newSocket = io("http://localhost:3001", {
+    const newSocket = io(API_BASE_URL || 'http://localhost:3006', {
       transports: ["websocket"],
       query: { token }
     });

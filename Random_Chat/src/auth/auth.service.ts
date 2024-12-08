@@ -5,17 +5,20 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User } from 'src/user/entities/user.entity';
-import { Repository } from 'typeorm';
 import { Token } from 'src/user/entities/token.entity';
 import { jwtConstants } from './constants';
-import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
     
     constructor(private userService: UserService
         ,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private configService: ConfigService
     ) {}
+    getJwtSecret(): string {
+        return this.configService.get<string>('JWT_SECRET');
+    }
     async sign_in(email: string, password: string) : Promise<any> {
         const user = await this.userService.findUserByEmail(email);
         if (!user ||!(await bcrypt.compare(password, user.password))) {
@@ -26,7 +29,7 @@ export class AuthService {
         const access_token = await this.jwtService.signAsync(payload);
         await this.userService.storeTokenInRepository(access_token, user);
        
-
+        
         return {
             access_token: access_token,
             user_email: user.email,

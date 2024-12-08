@@ -21,22 +21,32 @@ export class AuthController {
     async sign_in(@Body() body: { email: string; password: string },@Res({ passthrough: true }) response: Response,@Req() request: Request) {
 
         const data: Data_Authenticated = await this.authService.sign_in(body.email, body.password);
-        response.cookie('access_token', data.access_token, {
-            httpOnly: false, // Not secure for production; use true if storing sensitive data
-            domain: 'localhost', // Adjust for your domain
-            secure: true, // Use true if using HTTPS
-            sameSite: 'none', // Cross-site cookies
-          });
-        response.cookie('user_email',data.user_email,{
-            httpOnly: false,
-            domain: 'localhost',
-            secure: true,
-            sameSite: 'none',
-        });
+        this.setAuthCookies(response, data);
            
         return data
         
     }
+    private setAuthCookies(response: Response<any, Record<string, any>>, data: Data_Authenticated) {
+        const isProduction = process.env.NODE_ENV === 'production';
+    
+        response.cookie('access_token', data.access_token, {
+            httpOnly: true, // Protect against XSS
+            domain: isProduction ? '192.168.1.6' : undefined, // Use undefined for localhost in development
+            secure: isProduction, // Enable secure cookies in production (requires HTTPS)
+            sameSite: isProduction ? 'strict' : 'lax', // Strict in production for better CSRF protection
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
+        });
+    
+        response.cookie('user_email', data.user_email, {
+            httpOnly: false, // Not sensitive, so accessible via client-side JavaScript
+            domain: isProduction ? '192.168.1.6' : undefined, // Use undefined for localhost in development
+            secure: isProduction, // Enable secure cookies in production
+            sameSite: isProduction ? 'strict' : 'lax', // Strict in production
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
+        });
+    }
+    
+
     @Post('verify')
     async verify(@Req() req) {
         const token = req.headers.authorization.split(' ')[1];

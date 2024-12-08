@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
@@ -11,16 +12,24 @@ import { Friendship } from './user/entities/friend.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      password: 'postgres',
-      username: 'postgres',
-      database: 'postgres',
-      entities: [User,Token,Message,Room,Friendship,],
-      synchronize: true,
-      logging: true,
+    ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV}`, // Loads the appropriate environment file
+      isGlobal: true, // Makes the config available globally
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USER'),
+        password: configService.get<string>('DB_PASS'),
+        database: configService.get<string>('DB_NAME'),
+        entities: [User, Token, Message, Room, Friendship],
+        synchronize: true,
+        logging: true,
+      }),
+      inject: [ConfigService],
     }),
     UserModule,
     AuthModule,
@@ -30,3 +39,4 @@ import { Friendship } from './user/entities/friend.entity';
   providers: [],
 })
 export class AppModule {}
+
