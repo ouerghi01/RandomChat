@@ -28,9 +28,9 @@ services:
     networks:
       - app-network
     environment:
-      NODE_ENV: production
-      NEXT_PUBLIC_API_URL: https://nginx/api  # NGINX as the endpoint for REST API
-      NEXT_PUBLIC_API_URL_SOCKET: ws://nginx/ws  # NGINX as the WebSocket endpoint
+      - NODE_ENV = production
+      - NEXT_PUBLIC_API_URL =  https://nginx/api  # NGINX as the endpoint for REST API
+      - NEXT_PUBLIC_API_URL_SOCKET = ws://nginx/ws  # NGINX as the WebSocket endpoint
 
   postgres:
     image: postgres:16
