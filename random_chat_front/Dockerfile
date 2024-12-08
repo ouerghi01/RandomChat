@@ -8,6 +8,10 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
+# Copy only essential app files for base operations
+COPY prisma ./prisma
+RUN npx prisma generate --schema=./prisma/schema.prisma
+
 # Copy app files
 COPY . .
 
@@ -28,11 +32,15 @@ COPY package.json package-lock.json ./
 # Install production dependencies
 RUN npm ci --omit=dev && npm cache clean --force
 
+# Ensure Prisma binaries are available
+COPY --from=base /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=base /app/node_modules/@prisma /app/node_modules/@prisma
+
 # Expose Next.js default port
 EXPOSE 3000
 
 # Start the app in production mode
-CMD ["npx", "next", "start"]
+CMD ["node", ".next/standalone/server.js"]
 
 # Development stage
 FROM node:18 AS development
@@ -41,13 +49,14 @@ FROM node:18 AS development
 WORKDIR /app
 
 # Copy package files (install all dependencies for dev)
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
 # Copy all app files into the image
 COPY . .
 
 # Generate Prisma Client for development
+COPY prisma ./prisma
 RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Expose the default Next.js port
@@ -55,3 +64,4 @@ EXPOSE 3000
 
 # Start the app in development mode (with hot-reloading)
 CMD ["npm", "run", "dev"]
+
