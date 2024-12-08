@@ -18,9 +18,10 @@ async function bootstrap() {
   if (environment === 'production') {
     try {
       httpsOptions = {
-        key: fs.readFileSync('./src/secrets/key.pem'),
-        cert: fs.readFileSync('./src/secrets/cert.pem'),
+        key: fs.readFileSync('/app/secrets/key.pem'),   // Adjust path based on the mount
+        cert: fs.readFileSync('/app/secrets/cert.pem'), // Adjust path based on the mount
       };
+      
       console.log('HTTPS enabled for production.');
     } catch (error) {
       console.error('Error loading HTTPS certificates. Falling back to HTTP.');

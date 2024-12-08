@@ -1,48 +1,65 @@
-# Base image
-FROM node:18-alpine AS base
+# Base image with Node.js
+FROM node:18 AS base
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# Copy package files (for installing dependencies)
+COPY package*.json ./
 
-# Copy app files
-COPY . .
+# Install dependencies (only production dependencies in base)
+RUN npm install --production
 
-# Build stage (for production)
-FROM base AS build
-RUN npm run build
+# Copy Prisma schema before generating Prisma Client
+COPY prisma ./prisma
+
+# Generate Prisma Client for production
+RUN npx prisma generate --schema=./prisma/schema.prisma
+
+# Expose the default Next.js port
+EXPOSE 3000
 
 # Production stage
-FROM node:18-alpine AS production
-WORKDIR /app
+FROM base AS production
 ENV NODE_ENV=production
 
-# Copy only necessary files for production
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/public ./public
-COPY package.json package-lock.json ./
+# Copy all app files into the image
+COPY . .
 
-# Install production dependencies
-RUN npm ci --omit=dev && npm cache clean --force
+# Ensure the .next directory is included (assuming it’s pre-built locally)
+COPY .next .next
 
-# Expose Next.js default port
+# Alternatively, build the .next directory if it’s not pre-built
+RUN if [ ! -d ".next" ]; then npx next build; fi
+
+# Copy Prisma binaries to support database runtime
+COPY --from=base /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=base /app/node_modules/@prisma /app/node_modules/@prisma
+
+# Expose the default Next.js port
 EXPOSE 3000
 
 # Start the app in production mode
-CMD ["npm", "start"]
+CMD ["npx", "next", "start"]
 
 # Development stage
-FROM base AS development
-ENV NODE_ENV=development
+FROM node:18 AS development
 
-# Install all dependencies (including dev)
-RUN npm ci && npm cache clean --force
+# Set working directory
+WORKDIR /app
 
-# Expose Next.js default port
+# Copy package files (install all dependencies for dev)
+COPY package*.json ./
+RUN npm install
+
+# Copy all app files into the image
+COPY . .
+
+# Generate Prisma Client for development
+RUN npx prisma generate --schema=./prisma/schema.prisma
+
+# Expose the default Next.js port
 EXPOSE 3000
 
-# Start the app in development mode
+# Start the app in development mode (with hot-reloading)
 CMD ["npm", "run", "dev"]
