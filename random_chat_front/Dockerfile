@@ -1,43 +1,57 @@
-# Base image with node
-FROM node:18 AS base
+# Base image
+FROM node:18-alpine AS base
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Install production dependencies
-RUN npm install --production
-
-# Expose Next.js default port
-EXPOSE 3000
-
-# Production stage
-FROM base AS production
-ENV NODE_ENV=production
-
-# Copy the rest of the app (excluding dev dependencies)
+# Copy app files
 COPY . .
 
-# Install production dependencies only
-RUN npm ci --only=production && npm cache clean --force
+# Build stage (for production)
+FROM base AS build
+RUN npm run build
 
-# Expose the Next.js port again
+# Production stage
+FROM node:18-alpine AS production
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Copy only necessary files for production
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
+COPY package.json package-lock.json ./
+
+# Install production dependencies
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Expose Next.js default port
 EXPOSE 3000
 
 # Start the app in production mode
-CMD ["npm", "start"]
+CMD ["npx", "next", "start"]
 
 # Development stage
-FROM base AS development
-ENV NODE_ENV=development
+FROM node:18 AS development
 
-# Install all dependencies (including dev)
-RUN npm ci && npm cache clean --force
+# Set working directory
+WORKDIR /app
 
-# Expose Next.js default port
+# Copy package files (install all dependencies for dev)
+COPY package*.json ./
+RUN npm install
+
+# Copy all app files into the image
+COPY . .
+
+# Generate Prisma Client for development
+RUN npx prisma generate --schema=./prisma/schema.prisma
+
+# Expose the default Next.js port
 EXPOSE 3000
 
-# Start the app in development mode
+# Start the app in development mode (with hot-reloading)
 CMD ["npm", "run", "dev"]

@@ -11,6 +11,8 @@ services:
       - postgres  # Ensure NestJS waits for PostgreSQL to be ready
     networks:
       - app-network
+    volumes:
+      - ./Random_Chat/secrets:/app/secrets
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -22,15 +24,20 @@ services:
   next_js:
     build:
       context: ./random_chat_front  # Ensure this path points to the correct directory
+      target: production
     container_name: random_chat_front
     ports:
       - "3000:3000"
     networks:
       - app-network
+    volumes:
+      - ./random_chat_front:/app
+    command: ["npx", "next", "start"]
     environment:
       - NODE_ENV = production
       - NEXT_PUBLIC_API_URL =  https://nginx/api  # NGINX as the endpoint for REST API
       - NEXT_PUBLIC_API_URL_SOCKET = ws://nginx/ws  # NGINX as the WebSocket endpoint
+
 
   postgres:
     image: postgres:16
