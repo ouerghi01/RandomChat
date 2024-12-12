@@ -19,25 +19,22 @@ services:
       DB_USER: postgres
       DB_PASS: postgres
       DB_NAME: random_chat_db
-      NODE_ENV: production
+      NODE_ENV: development
 
   next_js:
     build:
       context: ./random_chat_front  # Ensure this path points to the correct directory
-      target: production
+      target: development
     container_name: random_chat_front
     ports:
       - "3000:3000"
     networks:
       - app-network
     volumes:
+      - ./Random_Chat/secrets:/app/secrets
       - ./random_chat_front:/app
-    command: ["npx", "next", "start"]
     environment:
-      - NODE_ENV = production
-      - NEXT_PUBLIC_API_URL =  https://nginx/api  # NGINX as the endpoint for REST API
-      - NEXT_PUBLIC_API_URL_SOCKET = ws://nginx/ws  # NGINX as the WebSocket endpoint
-
+      NODE_ENV=development  # Fixed formatting issue
 
   postgres:
     image: postgres:16
@@ -75,4 +72,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  postgres_data: {}

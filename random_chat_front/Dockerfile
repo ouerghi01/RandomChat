@@ -41,7 +41,6 @@ EXPOSE 3000
 
 # Start the app in production mode
 CMD ["node", ".next/standalone/server.js"]
-
 # Development stage
 FROM node:18 AS development
 
@@ -64,4 +63,3 @@ EXPOSE 3000
 
 # Start the app in development mode (with hot-reloading)
 CMD ["npm", "run", "dev"]
-

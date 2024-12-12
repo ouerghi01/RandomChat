@@ -12,7 +12,7 @@ export default async function Authentication(): Promise<JSX.Element> {
             
             <h1>Authentication</h1>
            
-            <a href="Authentication/login">Login</a>
+            <a href="Authentication/login" >Login</a>
             <a href="Authentication/register">Register</a>
         </div>
     )
