@@ -26,7 +26,8 @@ export default function Register(): JSX.Element {
       alert("Passwords don't match")
       return;
     }
-    const response = await axios.post('https://172.18.0.1/api/auth/register', 
+    console.log("Registering")
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, 
       { email, name, age, password, gender },
       {
         headers: {
@@ -36,6 +37,7 @@ export default function Register(): JSX.Element {
       }
     );
     if (response.status !== 200) {
+      console.log(response);
       const error = await response.data();
       throw new Error(error.message);
     }

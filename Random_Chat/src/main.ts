@@ -36,7 +36,7 @@ async function bootstrap() {
 
   // CORS Configuration
   const corsOptions = {
-    origin: 'https://172.18.0.1', // Frontend URLs
+    origin: '*', // Frontend URLs
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Authorization', 'Content-Type'],
     credentials: true,

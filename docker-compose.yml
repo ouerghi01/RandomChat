@@ -34,7 +34,8 @@ services:
       - ./Random_Chat/secrets:/app/secrets
       - ./random_chat_front:/app
     environment:
-      NODE_ENV=development  # Fixed formatting issue
+      NODE_ENV: development  # Fixed formatting issue
+      NEXT_PUBLIC_API_URL: http://172.18.0.1:443/api  # Fixed to valid key-value mapping
 
   postgres:
     image: postgres:16
