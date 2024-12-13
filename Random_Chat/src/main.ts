@@ -35,21 +35,12 @@ async function bootstrap() {
   }
 
   // CORS Configuration
-  const corsOptions =
-    environment === 'development'
-      ? {
-          origin: ['http://localhost:3000', 'http://192.168.1.6:3000','http://next_js:3000'], // Frontend URLs
-          methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-          allowedHeaders: ['Authorization', 'Content-Type'],
-          credentials: true,
-        }
-      : {
-         origin: ['http://localhost:3000', 'http://192.168.1.6:3000','http://next_js:3000'], // Frontend URLs
-
-          methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-          allowedHeaders: ['Authorization', 'Content-Type'],
-          credentials: true,
-        };
+  const corsOptions = {
+    origin: '*', // Frontend URLs
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
+    credentials: true,
+  };
   app.enableCors(corsOptions);
 
   // Use WebSocket adapter for handling WebSockets

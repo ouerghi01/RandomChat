@@ -1,40 +1,47 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import { FormEvent } from 'react';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+import https from 'https';
+import fs from 'fs';
+import axios from 'axios';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 export default function Register(): JSX.Element {
 
   const [name,setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [age,setAge] = useState(0)
-  const [gender, setGender] = useState("")
+  const [gender, setGender] = useState("");
+
   const [confirmPassword, setConfirmPassword] = useState("")
+
+  
+  const agent = new https.Agent({
+    rejectUnauthorized: false, // This will ignore SSL certificate validation
+  });
   async function onSubmit(event :FormEvent<HTMLFormElement>){
     event.preventDefault();
     if(password!==confirmPassword){
       alert("Passwords don't match")
       return;
     }
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        name,
-        age,
-        password,
-        gender,
-      }),
-    });
-    if (!response.ok) {
-      const error = await response.json();
+    console.log("Registering")
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, 
+      { email, name, age, password, gender },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        httpsAgent: agent,
+      }
+    );
+    if (response.status !== 200) {
+      console.log(response);
+      const error = await response.data();
       throw new Error(error.message);
     }
-    const data = await response.json();
+    const data = await response.data();
     console.log(data);
     alert("Registered Successfully!")
     setName("")
