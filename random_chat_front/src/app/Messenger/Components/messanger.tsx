@@ -30,7 +30,9 @@ interface notification_friendship {
 interface notification {
   message: string;
 }
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+const NEXT_PUBLIC_API_BASE_next = process.env.NEXT_PUBLIC_API_BASE_next
+
 async function verifyUserToken(token:string) {
   const response = await fetch(`${API_BASE_URL}/auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
@@ -61,7 +63,7 @@ const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   const fetch_messages = async () =>  {
     verifyUserToken(localStorage.getItem('access_token') || '');
     
-    const response = await fetch('./api/messages/', {
+    const response = await fetch(`${NEXT_PUBLIC_API_BASE_next}/api/messages/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

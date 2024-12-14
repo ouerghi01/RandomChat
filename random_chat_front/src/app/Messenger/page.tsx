@@ -23,6 +23,7 @@ export interface friendWithRoom {
 }
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL
+const NEXT_PUBLIC_API_BASE_next = process.env.NEXT_PUBLIC_API_BASE_next
  async function verifyUserToken(token:string) {
   const response = await fetch(`${API_BASE_URL}/auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
@@ -64,7 +65,7 @@ function Message() {
  
   async function fetchFriend(userId: number) {
     verifyUserToken(token || '');
-    const response = await fetch('/api/friends/', {
+    const response = await fetch(`${NEXT_PUBLIC_API_BASE_next}/api/friends/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
