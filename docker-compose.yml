@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   nest_js:
     build:
@@ -31,11 +32,13 @@ services:
     networks:
       - app-network
     volumes:
-      - ./Random_Chat/secrets:/app/secrets
-      - ./random_chat_front:/app
+      - ./random_chat_front:/app  # Fixed volume mount order
+      - ./ssl/self-signed.crt:/app/secrets/certificate.crt
     environment:
-      NODE_ENV: development  # Fixed formatting issue
-      NEXT_PUBLIC_API_URL: http://172.18.0.1:443/api  # Fixed to valid key-value mapping
+      NODE_ENV: development
+      NEXT_PUBLIC_API_BASE_URL: https://172.19.0.1:443/api  # Ensure correct API URL for the frontend
+      NEXT_PUBLIC_API_BASE_next: https://172.19.0.1:443/next_api
+
 
   postgres:
     image: postgres:16
@@ -59,9 +62,9 @@ services:
       - "80:80"   # HTTP
       - "443:443" # HTTPS
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl/self-signed.crt:/etc/nginx/certificate.crt
-      - ./ssl/self-signed.key:/etc/nginx/private.key
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl/self-signed.crt:/etc/nginx/certificate.crt:ro
+      - ./ssl/self-signed.key:/etc/nginx/private.key:ro
     depends_on:
       - nest_js
       - next_js
@@ -74,3 +77,4 @@ networks:
 
 volumes:
   postgres_data: {}
+

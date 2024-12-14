@@ -11,7 +11,7 @@ export default function Login() :JSX.Element {
 
         event.preventDefault();
         localStorage.clear();
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        const response = await fetch(`https://localhost:443/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -1,95 +1,116 @@
-'use client'
-import { useEffect, useState } from 'react';
-import styles from './styles.module.css';
-import { FormEvent } from 'react';
-import https from 'https';
-import fs from 'fs';
+'use client';
+import { useState, FormEvent } from 'react';
 import axios from 'axios';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+import styles from './styles.module.css';
+
+//const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function Register(): JSX.Element {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [age, setAge] = useState<number>(0);
+  const [gender, setGender] = useState('');
 
-  const [name,setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [age,setAge] = useState(0)
-  const [gender, setGender] = useState("");
-
-  const [confirmPassword, setConfirmPassword] = useState("")
-
-  
-  const agent = new https.Agent({
-    rejectUnauthorized: false, // This will ignore SSL certificate validation
-  });
-  async function onSubmit(event :FormEvent<HTMLFormElement>){
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if(password!==confirmPassword){
-      alert("Passwords don't match")
+
+    if (password !== confirmPassword) {
+      alert("Passwords don't match");
       return;
     }
-    console.log("Registering")
-    const response = await axios.post(`${API_BASE_URL}/auth/register`, 
-      { email, name, age, password, gender },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        httpsAgent: agent,
-      }
-    );
-    if (response.status !== 200) {
-      console.log(response);
-      const error = await response.data();
-      throw new Error(error.message);
-    }
-    const data = await response.data();
-    console.log(data);
-    alert("Registered Successfully!")
-    setName("")
-    setEmail("")
-    setPassword("")
-    setAge(0)
-    setGender("")
-    setConfirmPassword("")
-    window.location.href="/Authentication/login"
 
+    try {
+      const response = await axios.post(
+        `https://localhost:443/api/auth/register`,
+        { email, name, age, password, gender },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Registration response:', response.data);
+
+      alert('Registered Successfully!');
+      setName('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setAge(0);
+      setGender('');
+      window.location.href = '/Authentication/login';
+    } catch (error: unknown) {
+      console.error('Error during registration:', error);
+      if (axios.isAxiosError(error)) {
+        alert(error.response?.data?.message || 'An error occurred during registration');
+      } else {
+        alert('An error occurred during registration');
+      }
+    }
   }
+
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>Register</h1>
       <form className={styles.form} onSubmit={onSubmit}>
-        <input type="text" placeholder="Email" 
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className={styles.input}  required/>
+        <input
+          type="text"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={styles.input}
+          required
+        />
         <input
           type="text"
           placeholder="Name"
-          className={styles.input}
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className={styles.input}
           required
         />
-        <select 
+        <select
           className={styles.select}
           value={gender}
           onChange={(e) => setGender(e.target.value)}
           required
           aria-label="Gender selection"
         >
-          <option value="" disabled>Select Gender</option>
+          <option value="" disabled>
+            Select Gender
+          </option>
           <option value="m">Male</option>
           <option value="f">Female</option>
         </select>
-
-        <input type="number" placeholder="Age" className={styles.input} value={age} onChange={(e) => setAge(parseInt(e.target.value))}  required/>
-        <input 
-        type="password" 
-        placeholder="Password" 
-        className={styles.input} 
-        value={password}
-        onChange= {(e)=> setPassword(e.target.value)} required />
-        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm Password" className={styles.input}required />
-        <button type="submit" className={styles.button}>Register</button>
+        <input
+          type="number"
+          placeholder="Age"
+          value={age}
+          onChange={(e) => setAge(parseInt(e.target.value, 10))}
+          className={styles.input}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={styles.input}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className={styles.input}
+          required
+        />
+        <button type="submit" className={styles.button}>
+          Register
+        </button>
       </form>
     </div>
   );

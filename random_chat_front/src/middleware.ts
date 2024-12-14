@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { Cookie } from './app/actions';
 // Function to verify the user token
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 async function verifyUserToken(token: string): Promise<boolean> {
     if (!token) {
         return false;

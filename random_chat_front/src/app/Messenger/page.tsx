@@ -22,7 +22,7 @@ export interface friendWithRoom {
  
 }
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL
+  process.env.NEXT_PUBLIC_API_BASE_URL
  async function verifyUserToken(token:string) {
   const response = await fetch(`${API_BASE_URL}/auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
