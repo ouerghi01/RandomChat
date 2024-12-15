@@ -3,6 +3,7 @@ import { Token } from "./token.entity";
 import { Message } from "./message.entity";
 import { Room } from "./room.entity";
 import { Friendship } from "./friend.entity";
+import { Profile } from "./profile.entity";
 
 @Entity("users")
 export class User {
@@ -40,5 +41,8 @@ export class User {
     receivedFriendRequests: Friendship[];
     @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date;
+    @OneToOne(() => Profile, (profile) => profile.user) // specify inverse side as a second parameter
+    @JoinColumn()
+    profile: Profile
 
 }

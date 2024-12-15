@@ -9,6 +9,8 @@ import { ChatsModule } from './chats/chats.module';
 import { Message } from './user/entities/message.entity';
 import { Room } from './user/entities/room.entity';
 import { Friendship } from './user/entities/friend.entity';
+import { Profile } from './user/entities/profile.entity';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { Friendship } from './user/entities/friend.entity';
         username: "postgres",
         password: "postgres",
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Token, Message, Room, Friendship],
+        entities: [User, Token, Message, Room, Friendship,Profile],
         synchronize: true,
         logging: true,
       }),
@@ -35,7 +37,7 @@ import { Friendship } from './user/entities/friend.entity';
     AuthModule,
     ChatsModule,
   ],
-  controllers: [],
+  controllers: [UserController],
   providers: [],
 })
 export class AppModule {}

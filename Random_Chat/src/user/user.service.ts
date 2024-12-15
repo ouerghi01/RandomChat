@@ -10,6 +10,8 @@ import { Message } from './entities/message.entity';
 import { Room } from './entities/room.entity';
 import { Friendship } from './entities/friend.entity';
 import { send } from 'process';
+import { Profile } from './entities/profile.entity';
+import { CreateProfiledDto } from './dto/create_profile.dto';
 
 @Injectable()
 export class UserService {
@@ -21,6 +23,7 @@ export class UserService {
     @InjectRepository(Room) private roomRepository :Repository<Room>,
     @InjectRepository(Message) private messageRepository :Repository<Message>,
     @InjectRepository(Friendship) private FriendshipRepository :Repository<Friendship>,
+    @InjectRepository(Profile) private profileRepository :Repository<Profile>,
   ) {}
   create(createUserDto: CreateUserDto):Promise<User> {
     const user = new User();
@@ -33,6 +36,55 @@ export class UserService {
     return this.userRepository.save(user);
 
   }
+  async createProfile(profile_dto:CreateProfiledDto): Promise<Profile> {
+    const user1 = await this.userRepository.findOne({ where: 
+      { id: profile_dto.userId } ,
+      relations: {
+        profile: true,
+      },
+    });
+    if(user1==null) return null;
+    let profile = this.initializeProfileWithDto(user1.profile, profile_dto);
+    const profile_x=await this.profileRepository.save(profile);
+    user1.profile=profile_x;
+    await this.userRepository.save(user1);
+    return profile_x
+  }
+
+  private initializeProfileWithDto( profile_exist,profile_dto: CreateProfiledDto) {
+    let profile
+    if(profile_exist==null){
+      profile = new Profile();
+    }
+    else{
+      profile = profile_exist;
+    }
+    profile.profile_picture_url = profile_dto.profile_picture_url;
+    profile.bio = profile_dto.bio;
+    profile.city = profile_dto.city;
+    profile.country = profile_dto.country;
+    profile.timezone = profile_dto.timezone;
+    profile.birthday = profile_dto.birthday;
+    profile.phone_number = profile_dto.phone_number;
+    profile.social_link = profile_dto.social_link;
+    return profile;
+  }
+  public async GetProfile(user_id:number): Promise<Profile> {
+    try {
+      const user = await this.userRepository.findOne({ where: 
+        { id: user_id } ,
+        relations: {
+          profile: true,
+        },
+      
+      });
+      return user.profile;
+    }
+    catch (error) {
+      return null;
+    }
+  }
+
   public async storeTokenInRepository(access_token: string, user: User) {
     const token = new Token();
     token.token = access_token;
@@ -40,6 +92,15 @@ export class UserService {
     token.created_at = new Date();
     token.expired_at = new Date(new Date().getTime() + 8 * 24 * 60 * 60 * 1000);
     await this.tokenRepository.save(token);
+  }
+  public async editProfile( profile: Profile): Promise<Boolean> {
+    const profile_exist = await this.profileRepository.findOne({ where: { id: profile.id } });
+    const user1 = await this.userRepository.findOne({ where: { id: profile_exist.user.id } });
+    if(user1==null) return false;
+    user1.profile = profile;
+    await this.profileRepository.save(profile);
+    await this.userRepository.save(user1);
+    return true;
   }
   public async createFriendship(sender: User, receiver: User): Promise<void> {
     const friendship = new Friendship();

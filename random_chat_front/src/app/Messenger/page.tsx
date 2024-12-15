@@ -2,7 +2,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import DiscussionComponent from './Components/messanger';
 import Cookies from 'js-cookie';
-import { Navbar, NavbarBrand, NavbarContent, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar } from "@nextui-org/react";
+import { Navbar, NavbarBrand, NavbarContent, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar, Link } from "@nextui-org/react";
 import "./Components/message.css";
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setFriend } from '@/lib/features/Messagiere/mesgSlice';
@@ -23,7 +23,7 @@ export interface friendWithRoom {
 }
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL
- async function verifyUserToken(token:string) {
+async function verifyUserToken(token:string) {
   const response = await fetch(`${API_BASE_URL}auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
       headers: {
@@ -56,6 +56,7 @@ function Message() {
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
   const user_email = Cookies.get('user_email')
+  const user_id = Cookies.get('user_id')
   const dispatch = useAppDispatch()
   const [isRandomChat, setIsRandomChat] = useState<boolean>(true);
   const [friend_ids, setFriend_ids] = useState<friendWithRoom[]>([]);
@@ -161,6 +162,15 @@ function Message() {
         >
           Log Out
         </DropdownItem>
+        <DropdownItem key="help" className="h-14 gap-2">
+  <Link 
+    href={`/Profile/${encodeURIComponent(user_id || '')}`} 
+    className="flex items-center gap-2"
+  >
+    Go to your Profile
+  </Link>
+</DropdownItem>
+
       </DropdownMenu>
     </Dropdown>
   </NavbarContent>

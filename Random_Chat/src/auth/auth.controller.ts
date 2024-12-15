@@ -1,4 +1,4 @@
-import { Body, Controller, Get,HttpCode, HttpStatus, Post, UseGuards, Res, Req } from '@nestjs/common';
+import { Body, Controller,HttpCode, HttpStatus, Post, UseGuards, Res, Req } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
@@ -40,6 +40,13 @@ export class AuthController {
         response.cookie('user_email', data.user_email, {
             httpOnly: false, // Not sensitive, so accessible via client-side JavaScript
             domain: isProduction ? '192.168.1.6' : undefined, // Use undefined for localhost in development
+            secure: isProduction, // Enable secure cookies in production
+            sameSite: isProduction ? 'strict' : 'lax', // Strict in production
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
+        });
+        response.cookie('user_id', data.user_id.toString(), {
+            httpOnly: false, // Not sensitive, so accessible via client-side JavaScript
+            domain: isProduction ? '192.168.1.6' : undefined,
             secure: isProduction, // Enable secure cookies in production
             sameSite: isProduction ? 'strict' : 'lax', // Strict in production
             maxAge: 1000 * 60 * 60 * 24, // 1 day
