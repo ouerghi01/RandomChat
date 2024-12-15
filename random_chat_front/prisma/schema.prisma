@@ -23,8 +23,8 @@ model messages {
   content                           String
   date_created                      DateTime @default(now()) @db.Timestamp(6)
   receiver_id                       Int?
-  sender_id                         Int?
   room_id                           String?  @db.VarChar(255)
+  sender_id                         Int?
   rooms                             rooms?   @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_1dda4fc8dbeeff2ee71f0088ba0")
   users_messages_sender_idTousers   users?   @relation("messages_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_22133395bd13b970ccd0c34ab22")
   users_messages_receiver_idTousers users?   @relation("messages_receiver_idTousers", fields: [receiver_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_b561864743d235f44e70addc1f5")
@@ -32,8 +32,8 @@ model messages {
 
 model rooms {
   id                             String      @id(map: "PK_0368a2d7c215f2d0458a54933f2") @db.VarChar(255)
-  sender_id                      Int?
   receiver_id                    Int?
+  sender_id                      Int?
   messages                       messages[]
   users_rooms_receiver_idTousers users?      @relation("rooms_receiver_idTousers", fields: [receiver_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_4e3908821654edfa486d24a028f")
   users_rooms_sender_idTousers   users?      @relation("rooms_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_53745bfa52d5d4c94fd4cd0ccb4")

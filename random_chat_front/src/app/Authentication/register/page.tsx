@@ -3,7 +3,7 @@ import { useState, FormEvent } from 'react';
 import axios from 'axios';
 import styles from './styles.module.css';
 
-//const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Register(): JSX.Element {
   const [name, setName] = useState('');
@@ -23,7 +23,7 @@ export default function Register(): JSX.Element {
 
     try {
       const response = await axios.post(
-        `https://localhost:443/api/auth/register`,
+        `${API_BASE_URL}auth/register`,
         { email, name, age, password, gender },
         {
           headers: {

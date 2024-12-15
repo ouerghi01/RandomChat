@@ -8,7 +8,7 @@ async function verifyUserToken(token: string): Promise<boolean> {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+        const response = await fetch(`${API_BASE_URL}auth/verify`, {
             method: 'POST', // Use the appropriate HTTP method
             headers: {
                 'Content-Type': 'application/json', // Specify JSON content

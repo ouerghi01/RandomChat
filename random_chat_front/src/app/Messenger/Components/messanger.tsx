@@ -31,10 +31,9 @@ interface notification {
   message: string;
 }
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
-const NEXT_PUBLIC_API_BASE_next = process.env.NEXT_PUBLIC_API_BASE_next
 
 async function verifyUserToken(token:string) {
-  const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+  const response = await fetch(`${API_BASE_URL}auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
       headers: {
           'Content-Type': 'application/json', // Specify JSON content
@@ -63,7 +62,7 @@ const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   const fetch_messages = async () =>  {
     verifyUserToken(localStorage.getItem('access_token') || '');
     
-    const response = await fetch(`${NEXT_PUBLIC_API_BASE_next}/api/messages/`, {
+    const response = await fetch(`/api/messages/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -135,7 +134,7 @@ useEffect(() => {
     const timer = setTimeout(() => {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      fetch(`${API_BASE_URL}/chats/getClients/${id}`, {
+      fetch(`${API_BASE_URL}chats/getClients/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

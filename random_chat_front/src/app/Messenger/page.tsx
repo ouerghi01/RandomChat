@@ -23,9 +23,8 @@ export interface friendWithRoom {
 }
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL
-const NEXT_PUBLIC_API_BASE_next = process.env.NEXT_PUBLIC_API_BASE_next
  async function verifyUserToken(token:string) {
-  const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+  const response = await fetch(`${API_BASE_URL}auth/verify`, {
       method: 'POST', // Use the appropriate HTTP method
       headers: {
           'Content-Type': 'application/json', // Specify JSON content
@@ -51,8 +50,8 @@ function Message() {
    *
    * @constant {string | null} token - The access token stored in the local storage, or null if it doesn't exist.
    */
-  const token = Cookies.get('access_token');
-  console.log(token)
+  const token = localStorage.getItem('access_token');
+  
 
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
@@ -65,7 +64,7 @@ function Message() {
  
   async function fetchFriend(userId: number) {
     verifyUserToken(token || '');
-    const response = await fetch(`${NEXT_PUBLIC_API_BASE_next}/api/friends/`, {
+    const response = await fetch(`api/friends/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -130,7 +129,6 @@ function Message() {
     </button>
   </NavbarContent>
 
-  {/* Right Section: Profile Dropdown */}
   <NavbarContent justify="end" className="flex items-center">
     <Dropdown>
       <DropdownTrigger>
@@ -228,7 +226,6 @@ function MessageModule(showChat: boolean, friend: friendWithRoom | null, greetin
         }
         </div>
       ) : (
-        /* Render greeting message chat if showChat is true and greeting message exists */
         greetingMessage && greetingMessage.user_id && socket && greetingMessage.roomId && (
           <div className="relative">
             <DiscussionComponent
