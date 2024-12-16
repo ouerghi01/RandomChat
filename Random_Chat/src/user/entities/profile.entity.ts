@@ -6,7 +6,7 @@ export class Profile {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar', length: 255 })
+    @Column({ type: 'text' })
     profile_picture_url: string;
 
     @Column({ type: 'varchar', length: 255 })

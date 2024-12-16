@@ -163,8 +163,8 @@ function Message() {
           Log Out
         </DropdownItem>
         <DropdownItem key="help" className="h-14 gap-2">
-  <Link 
-    href={`/Profile/${encodeURIComponent(user_id || '')}`} 
+        <Link 
+    href={`Messenger/Profile/${encodeURIComponent(user_id || '')}`} 
     className="flex items-center gap-2"
   >
     Go to your Profile

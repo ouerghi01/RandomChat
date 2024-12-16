@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import React, { useState, useEffect, useRef, memo } from 'react';
-import { Card, CardHeader, CardBody, CardFooter, Divider, Input, Button, Avatar } from "@nextui-org/react";
+import { Card, CardHeader, CardBody, CardFooter, Divider, Input, Button, Avatar, Link } from "@nextui-org/react";
 import { Socket } from "socket.io-client";
+import { User_info } from '../Profile/[id]/page';
 
 interface MessagesProps {
   socket: typeof Socket;
@@ -51,6 +52,7 @@ async function verifyUserToken(token:string) {
   }
 }
 const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
+  const token = localStorage.getItem('access_token');
   const { socket, roomId, user_guest, id, isRandomChat } = props;
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<IMsgDataTypes[]>([]);
@@ -59,6 +61,23 @@ const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   const [send_request, setSendRequest] = useState<string>("");
   const [isAccepted, setIsAccepted] = useState<boolean>(false);
   const [send_invite, setSendInvite] = useState<boolean>(false);
+  const [guest_info, setGuestInfo] = useState<User_info | null>(null);
+  useEffect(() => {
+      if (!id || !token) return;
+  
+      fetch(`${API_BASE_URL}user/GetUserInfos/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setGuestInfo(data);
+        })
+        .catch((error) => {
+          console.error('Error fetching user info:', error);
+        });
+    }, [id, token]);
   const fetch_messages = async () =>  {
     verifyUserToken(localStorage.getItem('access_token') || '');
     
@@ -132,7 +151,7 @@ useEffect(() => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const token = localStorage.getItem('access_token');
+      
       if (!token) return;
       fetch(`${API_BASE_URL}chats/getClients/${id}`, {
         headers: {
@@ -179,8 +198,14 @@ useEffect(() => {
           isBordered
           color="secondary"
           size="sm"
-          src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+          src={guest_info?.profile_picture_url}
         />
+        <Link 
+            href={`Messenger/Profile/${encodeURIComponent(id || '')}`} 
+            className="flex items-center gap-2"
+          >
+            Go to profile {guest_info?.name}
+        </Link>
         <div style={{ marginLeft: '10px' }}>
           <p style={{ fontSize: '1rem', fontWeight: 'bold' }}>{user_guest || "Guest User"}</p>
         </div>

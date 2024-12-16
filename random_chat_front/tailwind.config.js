@@ -7,17 +7,18 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./Messenger/**/*.{js,ts,jsx,tsx,mdx}",
+    "./Messenger/Profile/[id]/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./public/**/*.{html,js}", // Include public folder if using HTML files
-    "./styles/**/*.{css,scss}", // Include styles if you're using CSS or SCSS files
-    "./lib/**/*.{js,ts,jsx,tsx}", // Include lib folder if you have utility functions
-    "./hooks/**/*.{js,ts,jsx,tsx}", // Include hooks if you have custom React hooks
-    "./context/**/*.{js,ts,jsx,tsx}", // Include context if using React context API
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}" // NextUI theme
+    "./public/**/*.html", // Adjusted glob pattern
+    "./styles/**/*.{css,scss}", // Included CSS/SCSS files
+    "./lib/**/*.{js,ts,jsx,tsx}", // Included lib folder for utilities
+    "./hooks/**/*.{js,ts,jsx,tsx}", // Included hooks folder
+    "./context/**/*.{js,ts,jsx,tsx}", // Included context API files
+    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}", // NextUI theme files
   ],
   theme: {
-    extend: {},
+    extend: {}, // Extend with custom configurations if needed
   },
-  darkMode: "class",
-  plugins: [nextui()],
-}
+  darkMode: "class", // Enable dark mode with class strategy
+  plugins: [nextui()], // Add NextUI plugin
+};

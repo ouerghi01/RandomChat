@@ -12,6 +12,7 @@ import { Friendship } from './entities/friend.entity';
 import { send } from 'process';
 import { Profile } from './entities/profile.entity';
 import { CreateProfiledDto } from './dto/create_profile.dto';
+import { User_info } from './dto/user_info.dto';
 
 @Injectable()
 export class UserService {
@@ -36,6 +37,32 @@ export class UserService {
     return this.userRepository.save(user);
 
   }
+  public async getUserInfo(id: number): Promise<User_info> {
+    const user = await this.userRepository.findOne({ 
+      where: { id },
+      relations: { profile: true },
+    });
+
+    if (!user) {
+        throw new Error('User not found'); // Optional: Handle the case where the user is not found
+    }
+
+    return {
+        name: user.name,
+        email: user.email,
+        age: user.age,
+        gender: user.gender,
+        profile_picture_url: user.profile?.profile_picture_url || '',
+        bio: user.profile?.bio || '',
+        city: user.profile?.city || '',
+        country: user.profile?.country || '',
+        timezone: user.profile?.timezone || '',
+        phone_number: user.profile?.phone_number || '',
+        birthday: user.profile?.birthday || null,
+        social_link: user.profile?.social_link || '',
+    };
+}
+
   async createProfile(profile_dto:CreateProfiledDto): Promise<Profile> {
     const user1 = await this.userRepository.findOne({ where: 
       { id: profile_dto.userId } ,
@@ -43,22 +70,10 @@ export class UserService {
         profile: true,
       },
     });
-    if(user1==null) return null;
-    let profile = this.initializeProfileWithDto(user1.profile, profile_dto);
-    const profile_x=await this.profileRepository.save(profile);
-    user1.profile=profile_x;
-    await this.userRepository.save(user1);
-    return profile_x
-  }
-
-  private initializeProfileWithDto( profile_exist,profile_dto: CreateProfiledDto) {
-    let profile
-    if(profile_exist==null){
-      profile = new Profile();
+    if (!user1) {
+      throw new Error('User not found');
     }
-    else{
-      profile = profile_exist;
-    }
+    const profile = new Profile();
     profile.profile_picture_url = profile_dto.profile_picture_url;
     profile.bio = profile_dto.bio;
     profile.city = profile_dto.city;
@@ -67,8 +82,13 @@ export class UserService {
     profile.birthday = profile_dto.birthday;
     profile.phone_number = profile_dto.phone_number;
     profile.social_link = profile_dto.social_link;
-    return profile;
+    const profile_x = await this.profileRepository.save(profile);
+    user1.profile = profile_x;
+    await this.userRepository.save(user1);
+    return profile_x;
   }
+
+  
   public async GetProfile(user_id:number): Promise<Profile> {
     try {
       const user = await this.userRepository.findOne({ where: 
