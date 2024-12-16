@@ -1,6 +1,6 @@
 # Feature Task List
 
-## 1. User Profiles with Avatars (Easy)
+## 1. User Profiles with Avatars (Easy)  done
 
 ### Steps:
 1. **Requirement**: Users should upload avatars and update their bio.

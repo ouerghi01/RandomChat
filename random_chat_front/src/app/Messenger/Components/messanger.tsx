@@ -193,66 +193,77 @@ useEffect(() => {
       borderRadius: '10px',
       overflow: 'hidden'
     }}>
-      <CardHeader className='bg-slate-700' style={{ display: 'flex', alignItems: 'center', padding: '10px', color: 'white' }}>
-        <Avatar
-          isBordered
+      <CardHeader className="bg-slate-700 text-white flex items-center px-4 py-3 rounded-t-md shadow-md">
+  {/* Avatar */}
+  <Avatar
+    isBordered
+    color="secondary"
+    size="sm"
+    src={guest_info?.profile_picture_url}
+    className="border-2 border-gray-500"
+  />
+
+  {/* User Info */}
+  <div className="ml-4">
+    <p className="text-lg font-semibold">{user_guest || "Guest User"}</p>
+  </div>
+
+  {/* Profile Link */}
+  <Link
+    href={`Messenger/Profile/${encodeURIComponent(id || "")}`}
+    className="ml-4 flex items-center px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-md shadow hover:bg-gray-300 transition duration-200"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="w-5 h-5 mr-2"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+    </svg>
+    Go to Profile {guest_info?.name}
+  </Link>
+
+  {/* Add/Accept Friend Button */}
+  <div className="ml-auto flex items-center">
+    {!isAccepted && (
+      send_request !== "accept" ? (
+        <Button
           color="secondary"
-          size="sm"
-          src={guest_info?.profile_picture_url}
-        />
-        <Link 
-            href={`Messenger/Profile/${encodeURIComponent(id || '')}`} 
-            className="flex items-center gap-2"
-          >
-            Go to profile {guest_info?.name}
-        </Link>
-        <div style={{ marginLeft: '10px' }}>
-          <p style={{ fontSize: '1rem', fontWeight: 'bold' }}>{user_guest || "Guest User"}</p>
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-            {
-            !isAccepted && (
-              send_request !== 'accept' ? 
-              <Button 
-               color="secondary"
-                variant="solid"
-                style={{
-                  backgroundColor: '#28a745',
-                  marginRight: '10px',
-                  color: send_invite ===true ? 'primary' : 'white'
-                }}
-              type="submit" 
-                onClick={() => {
-                setSendInvite(true);
-                socket.emit('add_friend', id);
-                }}>{
-                  send_invite === true ? 'Request Sent' : 'Add Friend'
-                }</Button>
-              : 
-              <Button 
-                color="primary"
-                variant="solid"
-                style={{
-                  backgroundColor: '#007bff',
-                  marginRight: '10px',
-                  color: 'white'
-                }}
-              onClick={() => {
-                socket.emit('accept_friend', id);
-              }}>Accept</Button>
-            )
-            }
-        </div>
-        <div
-          style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            backgroundColor: active ? 'limegreen' : 'gray',
-            marginLeft: 'auto'
+          className={`mr-2 px-4 py-2 rounded-md text-white font-medium ${
+            send_invite === true ? "bg-green-400" : "bg-green-600 hover:bg-green-700"
+          }`}
+          onClick={() => {
+            setSendInvite(true);
+            socket.emit("add_friend", id);
           }}
-        ></div>
-      </CardHeader>
+        >
+          {send_invite === true ? "Request Sent" : "Add Friend"}
+        </Button>
+      ) : (
+        <Button
+          color="primary"
+          className="mr-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium"
+          onClick={() => {
+            socket.emit("accept_friend", id);
+          }}
+        >
+          Accept
+        </Button>
+      )
+    )}
+  </div>
+
+  {/* Active Status Indicator */}
+  <div
+    className={`w-3 h-3 rounded-full ml-4 ${
+      active ? "bg-lime-400" : "bg-gray-400"
+    }`}
+  ></div>
+</CardHeader>
+
       <Divider />
       <CardBody style={{ flex: 1, padding: '15px', overflowY: 'auto', backgroundColor: '#e5ddd5' }}>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

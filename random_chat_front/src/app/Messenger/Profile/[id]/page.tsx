@@ -2,6 +2,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import  '/home/aziz/mysaas/random_chat_front/src/app/globals.css';
+import Link from 'next/link';
 
 export interface User_info {
   name: string; // User's name
@@ -24,6 +25,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Page() {
   const { id } = useParams(); // Destructure `id`
   const [user_info, SetUser_info] = useState<User_info | null>(null);
+  const user_main = localStorage.getItem('user_email');
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
   const [show_edit_profile,SetShowProfile]=useState<boolean>(false);
   const [profile_img, setProfile_img] = useState<string>("");
@@ -100,55 +102,103 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-gray-800">User Info</h1>
       <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-      {user_info ? (
+  {user_info ? (
   <div>
-    <h1 className="text-2xl font-bold text-gray-800 mb-4">{user_info.name}</h1>
-    <p className="text-gray-600 mb-2">
-      <span className="font-medium text-gray-700">Email:</span> {user_info.email}
-    </p>
-    <p className="text-gray-600 mb-2">
-      <span className="font-medium text-gray-700">Gender:</span> {user_info.gender}
-    </p>
-    <p className="text-gray-600 mb-2">
-      <span className="font-medium text-gray-700">Age:</span> {user_info.age}
-    </p>
-    {user_info.profile_picture_url && (
-      <img
-        src={user_info.profile_picture_url}
-        alt="Profile"
-        className="w-20 h-20 rounded-full mt-4"
-      />
-    )}
-    {user_info.bio && (
-      <p className="text-gray-600 mb-2">
-        <span className="font-medium text-gray-700">Bio:</span> {user_info.bio}
-      </p>
-    )}
-    {user_info.city && (
-      <p className="text-gray-600 mb-2">
-        <span className="font-medium text-gray-700">City:</span> {user_info.city}
-      </p>
-    )}
-    {user_info.country && (
-      <p className="text-gray-600 mb-2">
-        <span className="font-medium text-gray-700">Country:</span> {user_info.country}
-      </p>
-    )}
-    {user_info.social_link && (
-      <p className="text-gray-600">
-        <span className="font-medium text-gray-700">Social Link:</span>{' '}
-        <a
-          href={user_info.social_link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 hover:underline"
+    <div className="flex flex-col md:flex-row items-center md:items-start gap-6 pb-10 pr-9">
+
+      {/* Profile Picture or Placeholder */}
+      {user_info.profile_picture_url ? (
+        <img
+          src={user_info.profile_picture_url}
+          alt={`${user_info.name}'s Profile Picture`}
+          className="w-24 h-24 rounded-full shadow-lg object-cover"
+        />
+      ) : (
+        <div className="w-24 h-24 rounded-full shadow-lg bg-gray-300 flex items-center justify-center text-gray-700 text-xl font-semibold">
+          {user_info.name.charAt(0).toUpperCase()}
+        </div>
+      )}
+
+      {/* User Information and Actions */}
+      <div className="flex flex-col items-center md:items-start gap-4">
+        <h1 className="text-2xl font-bold text-gray-800">{user_info.name}</h1>
+        
+        {user_main === user_info.email && (
+          <button 
+            className="px-5 py-2 bg-blue-600 text-white font-medium rounded-md shadow-md hover:bg-blue-500 transition duration-200" 
+            onClick={() => SetShowProfile(!show_edit_profile)}
+          >
+            Edit Profile
+          </button>
+        )}
+
+        <Link 
+          href="/Messenger/" 
+          className="px-5 py-2 bg-gray-200 text-gray-800 font-medium rounded-md shadow-md hover:bg-gray-300 transition duration-200 flex items-center gap-2"
         >
-          {user_info.social_link}
-        </a>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            strokeWidth={1.5} 
+            stroke="currentColor" 
+            className="w-5 h-5"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              d="M15.75 19.5L8.25 12l7.5-7.5" 
+            />
+          </svg>
+          Back to Messenger
+        </Link>
+      </div>
+    </div>
+
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <p className="text-gray-600 mb-2">
+        <span className="font-medium text-gray-700">Intro</span> 
       </p>
-    )}
+      <p className="text-gray-600 mb-2">
+        <span className="font-medium text-gray-700">Email:</span> {user_info.email}
+      </p>
+      <p className="text-gray-600 mb-2">
+        <span className="font-medium text-gray-700">Gender:</span> {user_info.gender}
+      </p>
+      <p className="text-gray-600 mb-2">
+        <span className="font-medium text-gray-700">Age:</span> {user_info.age}
+      </p>
+     
+      {user_info.bio && (
+        <p className="text-gray-600 mb-2">
+          <span className="font-medium text-gray-700">Bio:</span> {user_info.bio}
+        </p>
+      )}
+      {user_info.city && (
+        <p className="text-gray-600 mb-2">
+          <span className="font-medium text-gray-700">City:</span> {user_info.city}
+        </p>
+      )}
+      {user_info.country && (
+        <p className="text-gray-600 mb-2">
+          <span className="font-medium text-gray-700">Country:</span> {user_info.country}
+        </p>
+      )}
+      {user_info.social_link && (
+        <p className="text-gray-600">
+          <span className="font-medium text-gray-700">Social Link:</span>{' '}
+          <a
+            href={user_info.social_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            {user_info.social_link}
+          </a>
+        </p>
+      )}
+    </div>
   </div>
 ) : (
   <div className="flex items-center justify-center h-32">
@@ -158,13 +208,7 @@ export default function Page() {
 
       </div>
       <div className="flex items-center justify-center mt-4">
-        <button className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700" 
-        onClick={() => {
-          SetShowProfile(!show_edit_profile)
-        }}
-        >
-          Edit Profile
-        </button>
+        
         {
           show_edit_profile && id && (
              (
