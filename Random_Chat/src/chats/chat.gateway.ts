@@ -20,6 +20,10 @@ interface Message_user {
   roomId: string;
 
 }
+interface User_typing {
+  user_guest: number;
+  typing: boolean;
+}
 @WebSocketGateway(3001, { transports: ['websocket'] }) // Enable CORS for WebSocket
 export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
   private map: Map<number, Socket>; 
@@ -62,6 +66,47 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
       console.error('Error handling disconnect:', error);
     }
   }
+  @SubscribeMessage('typing')
+  async userTyping(@ConnectedSocket() socket: Socket, @MessageBody() user_typing: User_typing) {
+    console.log(user_typing);
+    try {
+      const user = await this.chatsService.getUserFromSocket(socket);
+      if (user != null) {
+      const friendSocket = this.map.get(user_typing.user_guest);
+      if (friendSocket != null) {
+        this.server.to(friendSocket.id).emit('send_user_typing', {
+          user_guest: user.id,
+          typing: user_typing.typing
+        });
+      }
+      }
+    } catch (error) {
+      console.error('Error processing typing:', error);
+      this.server.to(socket.id).emit('notification', {
+      message: 'An error occurred while processing typing. Please try again later.'
+      });
+    }
+  }
+  @SubscribeMessage('send_user_typing')
+  async receiveUserTyping(@ConnectedSocket() socket: Socket, message: any) {
+    try {
+      const user = await this.chatsService.getUserFromSocket(socket);
+      if (user != null) {
+      const friendSocket = this.map.get(message.user_guest);
+      if (friendSocket != null) {
+        this.server.to(friendSocket.id).emit('send_user_typing', {
+          user_guest: user.id,
+          typing: message.typing
+        });
+      }
+      }
+    } catch (error) {
+      console.error('Error receiving typing:', error);
+      this.server.to(socket.id).emit('notification', {
+      message: 'An error occurred while receiving typing. Please try again later.'
+      });
+    }
+  }
   @SubscribeMessage('send_message')
   async listenForMessages(@MessageBody() message:Message_int ,@ConnectedSocket() socket: Socket) {
     try {
@@ -80,11 +125,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
       const friend = await this.userService.findOne(message_new.receiver_id);
       
       let  message_dto = new MessageDto(message_new.content,message.date_created,message_new.roomId,user,friend);
-      await this.userService.saveMessage(message_dto);
-      
-     
-      
-      
+      await this.userService.saveMessage(message_dto);    
       }
     } catch (error) {
       console.error('Error processing message:', error);

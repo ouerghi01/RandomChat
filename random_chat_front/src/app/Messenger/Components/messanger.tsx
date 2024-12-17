@@ -31,6 +31,10 @@ interface notification_friendship {
 interface notification {
   message: string;
 }
+interface User_typing {
+  user_guest: number;
+  typing: boolean;
+}
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 async function verifyUserToken(token:string) {
@@ -62,6 +66,12 @@ const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   const [isAccepted, setIsAccepted] = useState<boolean>(false);
   const [send_invite, setSendInvite] = useState<boolean>(false);
   const [guest_info, setGuestInfo] = useState<User_info | null>(null);
+  const [user_typing, setUserTyping] = useState<User_typing | null>(null);
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
   useEffect(() => {
       if (!id || !token) return;
   
@@ -78,6 +88,16 @@ const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
           console.error('Error fetching user info:', error);
         });
     }, [id, token]);
+  useEffect(() => {
+    
+    socket.on('send_user_typing', (data: User_typing) => {
+      console.log(data);
+      setUserTyping(data);
+    });
+    return () => {
+      socket.off('typing');
+    };
+  }, [socket]);
   const fetch_messages = async () =>  {
     verifyUserToken(localStorage.getItem('access_token') || '');
     
@@ -109,6 +129,7 @@ useEffect(() => {
 
   socket.on(eventName, (data: IMsgDataTypes) => {
     setMessages((prevMessages) => [...prevMessages, data]);
+    socket.emit('typing',{user_guest:id,typing:false});
   });
 
   return () => {
@@ -299,6 +320,17 @@ useEffect(() => {
             );
           })}
           <div ref={messagesEndRef} />
+          {user_typing && user_typing.typing && user_typing.user_guest === id ? (
+          <div className="ml-2 flex items-center space-x-1 text-sm text-gray-500">
+          <span>{user_guest} is typing</span>
+          <div className="flex space-x-1">
+          <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0s]"></span>
+          <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+           <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+           </div>
+          </div>
+          ) : null}
+
         </ul>
       </CardBody>
       <CardFooter style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>
@@ -319,7 +351,11 @@ useEffect(() => {
             color="primary"
             placeholder="Type a message"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+            setMessage(e.target.value)
+            socket.emit('typing',{user_guest:id,typing:true});
+            
+            }}
             style={{
               backgroundColor: '#fff',
               borderRadius: '20px',
