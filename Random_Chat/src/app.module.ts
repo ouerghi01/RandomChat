@@ -11,6 +11,8 @@ import { Room } from './user/entities/room.entity';
 import { Friendship } from './user/entities/friend.entity';
 import { Profile } from './user/entities/profile.entity';
 import { UserController } from './user/user.controller';
+import { Post_entity } from './user/entities/post.entity';
+import { PostController } from './user/post.controller';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { UserController } from './user/user.controller';
         username: "postgres",
         password: "postgres",
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Token, Message, Room, Friendship,Profile],
+        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity],
         synchronize: true,
         logging: true,
       }),
@@ -37,7 +39,7 @@ import { UserController } from './user/user.controller';
     AuthModule,
     ChatsModule,
   ],
-  controllers: [UserController],
+  controllers: [UserController,PostController],
   providers: [],
 })
 export class AppModule {}

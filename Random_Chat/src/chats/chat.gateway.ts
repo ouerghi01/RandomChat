@@ -328,7 +328,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
     console.log(user);
     if (user != null) {
       try {
-      if (this.waitingQueue.length > 0) {
+      if (this.waitingQueue.length > 0 && this.waitingQueue[0] !== user.id) {
         const random_user_id = this.waitingQueue.shift();
         const random_socket = this.map.get(random_user_id);
         const random_user = await this.chatsService.getUserFromSocket(random_socket)
@@ -356,6 +356,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         }
       } else {
         this.waitingQueue.push(user.id);
+        this.waitingQueue = [...new Set(this.waitingQueue)];
         this.server.to(socket.id).emit('find_random_chat', {
         message: 'Waiting for a random user to join...'
         });

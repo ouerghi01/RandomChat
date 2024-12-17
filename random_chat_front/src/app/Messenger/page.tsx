@@ -61,6 +61,7 @@ function Message() {
   const [isRandomChat, setIsRandomChat] = useState<boolean>(true);
   const [friend_ids, setFriend_ids] = useState<friendWithRoom[]>([]);
   const friend = useAppSelector((state) => state.friends.friend);
+  const [loading, setLoading] = useState(false);
 
  
   async function fetchFriend(userId: number) {
@@ -107,6 +108,9 @@ function Message() {
   const handleStartChat = () => {
     socket?.emit('find_random_chat');
     setShowChat(true);
+    alert('You are now waiting  to  connect a random person');
+    setLoading(!loading);
+
   };
 
   return (
@@ -208,7 +212,7 @@ function Message() {
         )}
     </ul>
   </div>
-        {MessageModule(showChat,friend,greetingMessage,socket,isRandomChat)}
+        {MessageModule(showChat,friend,loading,greetingMessage,socket,isRandomChat)}
 
        
       </div>
@@ -216,7 +220,14 @@ function Message() {
   );
 }
 
-function MessageModule(showChat: boolean, friend: friendWithRoom | null, greetingMessage: InitialsMessage | null, socket: SocketIOClient.Socket | null, isRandomChat: boolean) {
+function MessageModule(
+  showChat: boolean, 
+  friend: friendWithRoom | null, 
+  loading: boolean, 
+  greetingMessage: InitialsMessage | null, 
+  socket: SocketIOClient.Socket | null, 
+  isRandomChat: boolean
+) {
   return (
     <main className="h-full w-full flex justify-center items-center">
       {!showChat ? (
@@ -224,7 +235,7 @@ function MessageModule(showChat: boolean, friend: friendWithRoom | null, greetin
           {!isRandomChat && friend && friend.roomId && friend.id && socket ? (
             <div className="relative">
               <DiscussionComponent
-                key={friend.id} // Add this key
+                key={friend.id}
                 socket={socket}
                 roomId={friend.roomId}
                 user_guest={friend.name}
@@ -232,25 +243,25 @@ function MessageModule(showChat: boolean, friend: friendWithRoom | null, greetin
                 id={friend.id}
               />
             </div>
-          ): <Loading/>
-        }
+          ) : null}
         </div>
-      ) : (
-        greetingMessage && greetingMessage.user_id && socket && greetingMessage.roomId && (
-          <div className="relative">
-            <DiscussionComponent
-              socket={socket}
-              roomId={greetingMessage.roomId}
-              user_guest={greetingMessage.user_id}
-              id={greetingMessage.id}
-              isRandomChat={isRandomChat}
-            />
-          </div>
-        )
-      )}
+      ) : greetingMessage && greetingMessage.user_id && socket && greetingMessage.roomId ? (
+        <div className="relative">
+          <DiscussionComponent
+            socket={socket}
+            roomId={greetingMessage.roomId}
+            user_guest={greetingMessage.user_id}
+            id={greetingMessage.id}
+            isRandomChat={isRandomChat}
+          />
+        </div>
+      ) : loading ? (
+        <Loading />
+      ) : null}
     </main>
   );
 }
+
 
 
 

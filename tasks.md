@@ -1,6 +1,6 @@
 # Feature Task List
 
-## 1. User Profiles with Avatars (Easy)  done
+## 1. User Profiles with Avatars (Easy)
 
 ### Steps:
 1. **Requirement**: Users should upload avatars and update their bio.
@@ -12,7 +12,7 @@
    - Test edge cases like invalid file types or oversized files.
 4. **Implementation**:
    - Create an API for profile updates.
-   - Update the frontend with a profile page.A passionate developer with a love for coding and technology.
+   - Update the frontend with a profile page.
 5. **Refactor & Review**: Ensure clean separation of concerns.
 6. **Deploy**: Test the avatar upload process end-to-end.
 
@@ -33,8 +33,24 @@
 5. **Deploy**: Test with multiple users in real-time scenarios.
 
 ---
+## 3. Anonymous or Identified Post Publishing (Medium)
 
-## 3. Post Reactions (Medium)
+### Steps:
+1. **Requirement**: Users can choose to publish posts anonymously or with their identity.
+2. **Design**:
+   - Add a `is_anonymous` flag to the `posts` table.
+   - Update the API to handle the `is_anonymous` flag when creating posts.
+3. **TDD**:
+   - Write tests to verify posts are correctly marked as anonymous or identified.
+   - Test querying posts with mixed visibility settings.
+4. **Implementation**:
+   - Update the API to accept and store anonymous post status.
+   - Update the frontend to include an option for anonymous posting.
+5. **Deploy**: Verify anonymous posts appear without user identity and identified posts show the user's profile.
+
+---
+
+## 4. Post Reactions (Medium)
 
 ### Steps:
 1. **Requirement**: Users can react to posts with emojis.
@@ -50,7 +66,9 @@
 
 ---
 
-## 4. Moderation Dashboard (Medium)
+
+
+## 5. Moderation Dashboard (Medium)
 
 ### Steps:
 1. **Requirement**: Admins can manage flagged posts and users.
@@ -66,7 +84,7 @@
 
 ---
 
-## 5. Anonymous Polls (Medium)
+## 6. Anonymous Polls (Medium)
 
 ### Steps:
 1. **Requirement**: Users can create and vote on polls.
@@ -83,7 +101,7 @@
 
 ---
 
-## 6. Sentiment Analysis on Messages (Medium-Hard)
+## 7. Sentiment Analysis on Messages (Medium-Hard)
 
 ### Steps:
 1. **Requirement**: Analyze messages for toxicity.
@@ -100,7 +118,7 @@
 
 ---
 
-## 7. Group Chats with Topics (Hard)
+## 8. Group Chats with Topics (Hard)
 
 ### Steps:
 1. **Requirement**: Users can create and join topic-based group chats.
@@ -116,7 +134,7 @@
 
 ---
 
-## 8. Anonymous Stories (Hard)
+## 9. Anonymous Stories (Hard)
 
 ### Steps:
 1. **Requirement**: Users can post stories that expire after 24 hours.
@@ -132,7 +150,7 @@
 
 ---
 
-## 9. Voice Notes and Audio Messages (Hard)
+## 10. Voice Notes and Audio Messages (Hard)
 
 ### Steps:
 1. **Requirement**: Users can send voice messages.
@@ -149,7 +167,7 @@
 
 ---
 
-## 10. Real-Time Sentiment Heatmaps (Very Hard)
+## 11. Real-Time Sentiment Heatmaps (Very Hard)
 
 ### Steps:
 1. **Requirement**: Visualize sentiment trends with graphs.
