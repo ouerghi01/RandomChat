@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { setFriend } from '@/lib/features/Messagiere/mesgSlice';
 import { useSocket } from '../contexts/SocketContext';
 import Loading from './Loading_cus';
+import { User_info } from './Profile/[id]/page';
+import Create_post from './Components/Post_ui/Create_post';
 
 interface InitialsMessage {
   message: string;
@@ -56,14 +58,30 @@ function Message() {
   const [showChat, setShowChat] = useState(false);
   const [greetingMessage, setGreetingMessage] = useState<InitialsMessage | null>(null);
   const user_email = Cookies.get('user_email')
-  const user_id = Cookies.get('user_id')
+  const user_id = parseInt(Cookies.get('user_id') || '0', 10);
   const dispatch = useAppDispatch()
   const [isRandomChat, setIsRandomChat] = useState<boolean>(true);
   const [friend_ids, setFriend_ids] = useState<friendWithRoom[]>([]);
   const friend = useAppSelector((state) => state.friends.friend);
   const [loading, setLoading] = useState(false);
+  const [user_main_info, SetUser_main_info] = useState<User_info | null>(null);
 
- 
+  useEffect(() => {
+      if (!user_id || !token) return;
+  
+      fetch(`${API_BASE_URL}user/GetUserInfos/${user_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          SetUser_main_info(data);
+        })
+        .catch((error) => {
+          console.error('Error fetching user info:', error);
+        });
+    }, [user_id, token]);
   async function fetchFriend(userId: number) {
     verifyUserToken(token || '');
     const response = await fetch(`api/friends/`, {
@@ -142,9 +160,9 @@ function Message() {
           as="button"
           className="transition-transform"
           color="secondary"
-          name="Jason Hughes"
+          name={user_main_info?.name}
           size="sm"
-          src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+          src={user_main_info?.profile_picture_url}
         />
       </DropdownTrigger>
       <DropdownMenu aria-label="Profile Actions" variant="flat">
@@ -212,6 +230,17 @@ function Message() {
         )}
     </ul>
   </div>
+         {/* Center page  */}   
+         {
+          user_main_info && (
+            <Create_post 
+              id={user_id}
+              email={user_main_info.email}
+              img_url={user_main_info.profile_picture_url || ''}
+            />
+          )
+         }
+        
         {MessageModule(showChat,friend,loading,greetingMessage,socket,isRandomChat)}
 
        

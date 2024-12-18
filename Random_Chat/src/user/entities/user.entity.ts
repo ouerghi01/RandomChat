@@ -4,7 +4,7 @@ import { Message } from "./message.entity";
 import { Room } from "./room.entity";
 import { Friendship } from "./friend.entity";
 import { Profile } from "./profile.entity";
-import { Post } from "./post.entity";
+import { Post_entity } from "./post.entity";
 
 @Entity("users")
 export class User {
@@ -22,8 +22,8 @@ export class User {
     password: string;
     @OneToMany(() => Token, token => token.id)
     tokens: Token[];
-    @OneToMany(() => Post, p => p.id)
-    posts: Post[];
+    @OneToMany(() => Post_entity, p => p.id)
+    posts: Post_entity[];
     
     @OneToMany(() => Message, (message) => message.receiver)
     messages_receiver: Message[];
