@@ -204,8 +204,9 @@ useEffect(() => {
 
   return (
     <Card style={{
-      width: '1200px',  // Larger for random chat
-      maxWidth:  '800px' ,  // Conditional size
+      width: '600px',  // Larger for random chat
+      position: 'relative',
+      left: '-15px',
       height: '85vh',  // Adjust height
       margin: '0 auto',
       display: 'flex',

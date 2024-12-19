@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <StoreProvider>
-      <html>
+      <html className="">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
 
       <NextUIProvider>

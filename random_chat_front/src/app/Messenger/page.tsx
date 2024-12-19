@@ -133,7 +133,7 @@ function Message() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex-1 flex-col h-screen w-full  overflow overflow-y-auto" >
       {/* Header */}
       <Navbar isBordered className="px-6">
   {/* Left Section: Brand Name */}
@@ -200,55 +200,85 @@ function Message() {
 </Navbar>
 
 
-<div className="flex flex-1 h-screen overflow-hidden">
-  {/* Left Sidebar */}
-  <div className="flex flex-col w-1/4 bg-slate-700 p-4 rounded-tr-lg rounded-br-lg shadow-lg">
-    <h1 className="text-2xl font-semibold text-white mb-6">Friends</h1>
-    <ul className="space-y-3">
-      {friend_ids.length > 0 &&
-        friend_ids.map((friendWithRoom) =>
-          friendWithRoom ? (
-            <li key={friendWithRoom.id}>
-              <button
-                className="flex items-center w-full text-left text-white p-3 rounded-lg hover:bg-slate-600 transition duration-150 ease-in-out"
-                onClick={() => {
-                  setIsRandomChat(false);
-                  dispatch(setFriend(friendWithRoom));
-                }}
-              >
-                <Avatar
-                  isBordered
-                  className="transition-transform"
-                  color="secondary"
-                  name={friendWithRoom.name}
-                  size="sm"
-                  src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-                />
-                <span className="ml-3 font-medium ">{friendWithRoom.name}</span>
-              </button>
-            </li>
-          ) : null
-        )}
-    </ul>
+<div className="flex flex-row h-screen bg-gray-100 overflow-hidden">
+ {/* Left Sidebar */}
+<div className="flex flex-col w-1/4 max-w-xs bg-slate-800 p-4 rounded-tr-lg rounded-br-lg shadow-lg h-screen overflow-y-auto sticky top-0">
+  <h1 className="text-xl font-bold text-white mb-4">Friends</h1>
+  
+  {/* Search Bar */}
+  <div className="relative mb-6">
+    <input
+      type="text"
+      placeholder="Search friends..."
+      className="w-full p-2 pl-10 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      
+    />
+    <svg
+      className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+    >
+      <path d="M12.9 14.32a8 8 0 111.42-1.42l4.35 4.34a1 1 0 01-1.41 1.41l-4.34-4.35zM8 14a6 6 0 100-12 6 6 0 000 12z" />
+    </svg>
   </div>
-         {/* Center page  */}   
-         {
-          user_main_info && (
-            <Create_post 
-              id={user_id}
-              email={user_main_info.email}
-              img_url={user_main_info.profile_picture_url || ''}
-            />
-          )
-         }
-         <div className='flex relative left-6 top-auto flex-col items-center justify-center w-1/2'>
-                   {<Get_posts/>}
-         </div>
-        
-        {MessageModule(showChat,friend,loading,greetingMessage,socket,isRandomChat)}
 
-       
-      </div>
+  {/* Friends List */}
+  <ul className="space-y-4">
+    {friend_ids.length > 0 &&
+      friend_ids.map((friendWithRoom) =>
+        friendWithRoom ? (
+          <li key={friendWithRoom.id}>
+            <button
+              className="flex items-center w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition duration-150 ease-in-out"
+              onClick={() => {
+                setIsRandomChat(false);
+                dispatch(setFriend(friendWithRoom));
+              }}
+            >
+              <Avatar
+                isBordered
+                className="transition-transform"
+                color="secondary"
+                name={friendWithRoom.name}
+                size="sm"
+                src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+              />
+              <span className="ml-3 font-medium text-white">{friendWithRoom.name}</span>
+            </button>
+          </li>
+        ) : null
+      )}
+  </ul>
+
+  {/* Post Section */}
+  {user_main_info && (
+    <div className="mt-6 relative right-2">
+      <h2 className="text-lg font-semibold text-white mb-3">Create Post</h2>
+      <Create_post
+        id={user_id}
+        email={user_main_info.email}
+        img_url={user_main_info.profile_picture_url || ''}
+      />
+    </div>
+  )}
+</div>
+
+
+  {/* Main Content */}
+  <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
+    
+    <div className="flex-grow">
+      <Get_posts />
+    </div>
+  </div>
+
+  {/* Chat Module */}
+  <div className="w-1/3 bg-white shadow-lg relative bottom-24 h-full rounded-tl-lg rounded-bl-lg flex flex-col overflow-y-auto">
+    {MessageModule(showChat, friend, loading, greetingMessage, socket, isRandomChat)}
+  </div>
+</div>
+
     </div>
   );
 }
