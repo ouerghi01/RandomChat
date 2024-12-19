@@ -4,6 +4,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   let app = await NestFactory.create(AppModule);
@@ -48,6 +49,8 @@ async function bootstrap() {
 
   // Use cookie-parser to handle cookies
   app.use(cookieParser());
+  app.use(bodyParser.json({limit: '50mb'}));
+  app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
   // Listen on the specified port
   await app.listen(port);

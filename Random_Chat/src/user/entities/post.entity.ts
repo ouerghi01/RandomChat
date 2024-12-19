@@ -5,7 +5,9 @@ import { User } from "./user.entity";
 export class Post_entity {
     @PrimaryGeneratedColumn()
     id: number;
+    @Column({ type: "varchar", length: 255 ,nullable:true})
     title: string;
+    @Column({ type: "text"  , nullable:true})
     content: string;
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt: Date;
@@ -16,6 +18,7 @@ export class Post_entity {
     @ManyToOne(() => User, user => user.posts)
     user: User;
     // marked as anonymous or identified
+    @Column({ type: "boolean", default: false, nullable: true })
     isAnonymous: boolean;
 
 }

@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { Post_entity } from "./entities/post.entity";
 import { CreatePostDto } from "./dto/CreatePostDto.dto";
+import { Get_posts_dto } from "./dto/get_posts.dto";
 
 @Injectable()
 export class PostService {
@@ -23,10 +24,31 @@ export class PostService {
         post.title = createPostDto.title;
         post.content = createPostDto.content;
         post.user = user;
+        post.isAnonymous = createPostDto.isAnonymous;
+        if (createPostDto.post_img) {
+            post.image = createPostDto.post_img;
+        }
         return this.postRepository.save(post);
     }
-    async findAll(): Promise<Post_entity[]> {
-        return this.postRepository.find();
+    async findAll(): Promise<Get_posts_dto[]> {
+        const posts = await this.postRepository.find({
+            relations: ['user', 'user.profile'],
+        });
+        let allPosts : Get_posts_dto[] = [];
+        for (let i = 0; i < posts.length; i++) {
+            let post = new Get_posts_dto();
+            post.title = posts[i].title;
+            post.content = posts[i].content;
+            post.post_image = posts[i].image;
+            post.id = posts[i].id;
+            post.userId = posts[i].user.id;
+            post.email = posts[i].user.email;
+            post.profile_image = posts[i].user.profile.profile_picture_url;
+            post.isAnonymous = posts[i].isAnonymous
+            post.CreatedAt = posts[i].createdAt;
+            allPosts.push(post);
+        }
+        return allPosts;
     }
 
 }

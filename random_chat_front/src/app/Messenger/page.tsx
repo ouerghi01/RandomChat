@@ -10,6 +10,7 @@ import { useSocket } from '../contexts/SocketContext';
 import Loading from './Loading_cus';
 import { User_info } from './Profile/[id]/page';
 import Create_post from './Components/Post_ui/Create_post';
+import Get_posts from './Components/Post_ui/Get_post';
 
 interface InitialsMessage {
   message: string;
@@ -240,6 +241,9 @@ function Message() {
             />
           )
          }
+         <div className='flex relative left-6 top-auto flex-col items-center justify-center w-1/2'>
+                   {<Get_posts/>}
+         </div>
         
         {MessageModule(showChat,friend,loading,greetingMessage,socket,isRandomChat)}
 

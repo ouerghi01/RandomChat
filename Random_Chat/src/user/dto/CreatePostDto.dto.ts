@@ -3,4 +3,5 @@ export class CreatePostDto {
   content: string;
   isAnonymous: boolean;
   userId: number;
+  post_img: string;
 }

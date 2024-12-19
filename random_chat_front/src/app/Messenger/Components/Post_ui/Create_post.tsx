@@ -10,12 +10,26 @@ export interface User_data {
 }
 
 export default function Create_post(user_data: User_data) {
+  
   const [create_post, setCreate_post] = React.useState({
     title: "",
     content: "",
     isAnonymous: false,
     userId: user_data.id,
+    post_img: "",
   });
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        setCreate_post({
+          ...create_post,
+          post_img: fileReader.result as string,
+        });
+      };
+      fileReader.readAsDataURL(event.target.files[0]);
+    }
+  };
   const [show, setShow] = React.useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, type, value, checked } = e.target as HTMLInputElement;
@@ -37,7 +51,7 @@ export default function Create_post(user_data: User_data) {
       });
       if (response.ok) {
         alert("Post created successfully!");
-        setCreate_post({ title: "", content: "", isAnonymous: false, userId: user_data.id });
+        setCreate_post({ title: "", content: "", isAnonymous: false, userId: user_data.id , post_img: "" });
         setShow(false);
       } else {
         alert("Failed to create post!");
@@ -48,7 +62,7 @@ export default function Create_post(user_data: User_data) {
   };
 
   return (
-    <div className="w-96 h-96 p-4 bg-white rounded-lg shadow-md max-w-md mx-auto  border-4 border-indigo-500/100">
+    <div className="w-96 h-fit p-4 bg-white rounded-lg shadow-md max-w-md mx-auto  border-4 border-indigo-500/100">
       <div className="flex items-center gap-4">
         <Image
           src={user_data.img_url}
@@ -85,6 +99,18 @@ export default function Create_post(user_data: User_data) {
             className="w-full p-2 border rounded-md focus:outline-blue-500 resize-none"
             rows={4}
           />
+          <div>
+                      <label className="block text-gray-700 font-medium mb-2">Profile Picture</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                      />
+                      {create_post.post_img && (
+                        <Image src={create_post.post_img} alt="Profile" width={96} height={96} className="mt-4 w-24 h-24 rounded-full object-cover" />
+                      )}
+          </div>
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
