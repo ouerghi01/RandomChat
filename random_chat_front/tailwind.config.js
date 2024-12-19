@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 import { nextui } from "@nextui-org/react";
 
-module.exports = {
+const config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -22,3 +22,5 @@ module.exports = {
   darkMode: "class", // Enable dark mode with class strategy
   plugins: [nextui()], // Add NextUI plugin
 };
+
+export default config;
