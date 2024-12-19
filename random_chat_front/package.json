@@ -1,4 +1,4 @@
-{
+{  "type": "module",
   "name": "random_chat_front",
   "version": "0.1.0",
   "private": true,
