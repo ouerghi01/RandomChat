@@ -11,8 +11,9 @@ import { UserController } from './user.controller';
 import { Post_entity } from './entities/post.entity';
 import { PostService } from './user.post.service';
 import { PostController } from './post.controller';
+import { Reaction } from './entities/reaction.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity])],
+  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity,Reaction])],
   controllers: [UserController,PostController],
   providers: [UserService,PostService],
   exports: [UserService,PostService],

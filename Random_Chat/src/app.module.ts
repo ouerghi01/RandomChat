@@ -13,6 +13,7 @@ import { Profile } from './user/entities/profile.entity';
 import { UserController } from './user/user.controller';
 import { Post_entity } from './user/entities/post.entity';
 import { PostController } from './user/post.controller';
+import { Reaction } from './user/entities/reaction.entity';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { PostController } from './user/post.controller';
         username: "postgres",
         password: "postgres",
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity],
+        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity,Reaction],
         synchronize: true,
         logging: true,
       }),

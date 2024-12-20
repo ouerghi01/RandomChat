@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
+import { Reaction } from "./reaction.entity";
 
 @Entity("posts")
 export class Post_entity {
@@ -17,6 +18,9 @@ export class Post_entity {
     image:string;
     @ManyToOne(() => User, user => user.posts)
     user: User;
+    @OneToMany(() => Reaction, reaction => reaction.id)
+    reactions: Reaction[];
+    
     // marked as anonymous or identified
     @Column({ type: "boolean", default: false, nullable: true })
     isAnonymous: boolean;

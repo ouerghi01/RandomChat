@@ -1,7 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
+import ReactionButton from './ReactionButton';
 
-interface Post {
+export interface Post {
   title: string;
   content: string;
   post_image: string;
@@ -14,10 +15,20 @@ interface Post {
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+export enum Reaction {
+  LIKE = "LIKE",
+  LOVE = "LOVE",
+  HAHA = "HAHA",
+  WOW = "WOW",
+  SAD = "SAD",
+  ANGRY = "ANGRY",
+  CARE = "CARE",
+}
 
 export default function GetPosts() {
   const [posts, setPosts] = React.useState<Post[]>([]);
 
+ 
   React.useEffect(() => {
     fetch(`${API_BASE_URL}post/GetAllPosts`, {
       headers: {
@@ -94,18 +105,19 @@ export default function GetPosts() {
                 )}
               </div>
 
-              {/* Post Actions */}
+              {/* Post Actions 
+              LIKE = "like",
+              
+              LOVE = "love",
+              HAHA = "haha",
+              
+              */}
+              
               <div className="flex justify-between items-center mt-4 border-t pt-2">
-                <button className="flex items-center space-x-2 text-gray-500 hover:text-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M3.172 5.172a4 4 0 010-5.656A4 4 0 018.656 5.172l-.482.482a4 4 0 01-5.656 0zM9.828 12.828a4 4 0 010-5.656A4 4 0 015.172 12.828l.482.482a4 4 0 01-5.656 0z" />
-                  </svg>
-                  <span>Like</span>
-                </button>
+                <ReactionButton post={post} sendPostReaction={sendPostReaction} />
                 <button className="flex items-center space-x-2 text-gray-500 hover:text-green-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M2 5a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm10 3a1 1 0 00-1-1H4a1 1 0 000 2h5a1 1 0 001-1z" clipRule="evenodd" />
-                  </svg>
+                  
+                  <span className='text-2xl'> 🗨️</span>
                   <span>Comment</span>
                 </button>
                 <button className="flex items-center space-x-2 text-gray-500 hover:text-red-500">
@@ -123,4 +135,19 @@ export default function GetPosts() {
       </div>
     </div>
   );
+
+  function sendPostReaction(post: Post,reaction_type: string) {
+    
+    fetch(
+      `${API_BASE_URL}post/ReactToPost`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: JSON.stringify({ postId: post.id, reaction: Reaction[reaction_type as keyof typeof Reaction], userId: localStorage.getItem('user_id') }),
+      }
+    );
+  }
 }

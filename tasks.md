@@ -68,23 +68,8 @@
 
 
 
-## 5. Moderation Dashboard (Medium)
 
-### Steps:
-1. **Requirement**: Admins can manage flagged posts and users.
-2. **Design**:
-   - Add `is_admin` flag to the `users` table.
-   - Build a React-based dashboard.
-3. **TDD**:
-   - Write tests for permission checks (admin vs. non-admin users).
-   - Test all CRUD operations for reports and bans.
-4. **Implementation**:
-   - Implement the dashboard with appropriate routes and API endpoints.
-5. **Deploy**: Test with different user roles.
-
----
-
-## 6. Anonymous Polls (Medium)
+## 5. Anonymous Polls (Medium)
 
 ### Steps:
 1. **Requirement**: Users can create and vote on polls.
@@ -101,6 +86,21 @@
 
 ---
 
+## 4. Moderation Dashboard (Medium)
+
+### Steps:
+1. **Requirement**: Admins can manage flagged posts and users.
+2. **Design**:
+   - Add `is_admin` flag to the `users` table.
+   - Build a React-based dashboard.
+3. **TDD**:
+   - Write tests for permission checks (admin vs. non-admin users).
+   - Test all CRUD operations for reports and bans.
+4. **Implementation**:
+   - Implement the dashboard with appropriate routes and API endpoints.
+5. **Deploy**: Test with different user roles.
+
+---
 ## 7. Sentiment Analysis on Messages (Medium-Hard)
 
 ### Steps:
