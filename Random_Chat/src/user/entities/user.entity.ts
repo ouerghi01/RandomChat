@@ -6,6 +6,7 @@ import { Friendship } from "./friend.entity";
 import { Profile } from "./profile.entity";
 import { Post_entity } from "./post.entity";
 import { Reaction } from "./reaction.entity";
+import { Poll } from "./poll.entity";
 
 @Entity("users")
 export class User {
@@ -31,6 +32,8 @@ export class User {
     messages_receiver: Message[];
     @OneToMany(() => Message, (message) => message.sender)
     messages_sender: Message[];
+    @OneToMany(() => Poll, (poll) => poll.user)
+    polls: Poll[];
     
     @OneToMany(() => Room, (room) => room.sender)
     send_rooms: Room[];

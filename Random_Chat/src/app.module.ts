@@ -14,6 +14,9 @@ import { UserController } from './user/user.controller';
 import { Post_entity } from './user/entities/post.entity';
 import { PostController } from './user/post.controller';
 import { Reaction } from './user/entities/reaction.entity';
+import { Poll } from './user/entities/poll.entity';
+import { Option_entity } from './user/entities/option.entity';
+import { PollController } from './user/poll.controller';
 
 @Module({
   imports: [
@@ -30,7 +33,7 @@ import { Reaction } from './user/entities/reaction.entity';
         username: "postgres",
         password: "postgres",
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity,Reaction],
+        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity,Reaction,Poll,Option_entity],
         synchronize: true,
         logging: true,
       }),
@@ -40,7 +43,7 @@ import { Reaction } from './user/entities/reaction.entity';
     AuthModule,
     ChatsModule,
   ],
-  controllers: [UserController,PostController],
+  controllers: [UserController,PostController,PollController],
   providers: [],
 })
 export class AppModule {}

@@ -5,7 +5,7 @@ import { User } from "./user.entity";
 export enum ReactionType {
     LIKE = "LIKE",
     LOVE = "LOVE",
-    HAHA = "HAHA",
+    HAHA = "HHHH",
     WOW = "WOW",
     SAD = "SAD",
     ANGRY = "ANGRY",

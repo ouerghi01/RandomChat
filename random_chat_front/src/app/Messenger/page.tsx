@@ -11,6 +11,8 @@ import Loading from './Loading_cus';
 import { User_info } from './Profile/[id]/page';
 import Create_post from './Components/Post_ui/Create_post';
 import Get_posts from './Components/Post_ui/Get_post';
+import Create_poll from './Components/Poll_ui/Create_poll';
+import Get_poll from './Components/Poll_ui/Get_poll';
 
 interface InitialsMessage {
   message: string;
@@ -253,7 +255,7 @@ function Message() {
 
   {/* Post Section */}
   {user_main_info && (
-    <div className="mt-6 relative right-2">
+    <div className="mt-6    relative right-2">
       <h2 className="text-lg font-semibold text-white mb-3">Create Post</h2>
       <Create_post
         id={user_id}
@@ -262,14 +264,20 @@ function Message() {
       />
     </div>
   )}
+  {/* Create Poll Section */}
+  <h2 className="text-lg font-semibold text-white mb-3">Add Poll</h2>
+  <Create_poll />
+  
 </div>
 
 
   {/* Main Content */}
   <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
-    
     <div className="flex-grow">
       <Get_posts />
+    </div>
+    <div className="flex-grow">
+      <Get_poll />
     </div>
   </div>
 

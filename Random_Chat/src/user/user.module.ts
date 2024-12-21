@@ -12,10 +12,14 @@ import { Post_entity } from './entities/post.entity';
 import { PostService } from './user.post.service';
 import { PostController } from './post.controller';
 import { Reaction } from './entities/reaction.entity';
+import { Poll } from './entities/poll.entity';
+import { Option_entity } from './entities/option.entity';
+import { PollController } from './poll.controller';
+import { PollService } from './poll.service';
 @Module({
-  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity,Reaction])],
-  controllers: [UserController,PostController],
-  providers: [UserService,PostService],
-  exports: [UserService,PostService],
+  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity,Reaction,Poll,Option_entity])],
+  controllers: [UserController,PostController,PollController],
+  providers: [UserService,PostService,PollService],
+  exports: [UserService,PostService,PollService],
 })
 export class UserModule {}
