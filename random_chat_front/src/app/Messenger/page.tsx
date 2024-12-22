@@ -272,17 +272,22 @@ function Message() {
 
 
   {/* Main Content */}
-  <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
-    <div className="flex-grow">
-      <Get_posts />
-    </div>
-    <div className="flex-grow">
-      <Get_poll />
-    </div>
+<div className="flex flex-row p-6 space-x-4 overflow-y-auto">
+  {/* Posts Section */}
+  <div className="flex-1 flex flex-col space-y-4 bg-gray-100 p-4 rounded-md shadow-md h-fit">
+    
+    <Get_posts />
   </div>
 
+  {/* Polls Section */}
+  <div className="flex-1 flex flex-col space-y-4 bg-gray-100 p-4 rounded-md shadow-md h-fit">
+    <Get_poll />
+  </div>
+</div>
+
+
   {/* Chat Module */}
-  <div className="w-1/3 bg-white shadow-lg relative bottom-24 h-full rounded-tl-lg rounded-bl-lg flex flex-col overflow-y-auto">
+  <div className="w-1/3 bg-white  shadow-lg relative bottom-24 h-full rounded-tl-lg rounded-bl-lg flex flex-col overflow-y-auto">
     {MessageModule(showChat, friend, loading, greetingMessage, socket, isRandomChat)}
   </div>
 </div>
@@ -300,7 +305,7 @@ function MessageModule(
   isRandomChat: boolean
 ) {
   return (
-    <main className="h-full w-full flex justify-center items-center">
+    <main className="h-full w-full    flex justify-center items-center">
       {!showChat ? (
         <div className="flex gap-5 items-center justify-center relative top-10 left-5">
           {!isRandomChat && friend && friend.roomId && friend.id && socket ? (

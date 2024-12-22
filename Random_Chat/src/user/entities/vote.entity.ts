@@ -1,24 +1,23 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Poll } from "./poll.entity";
+import { CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./user.entity";
-import { Vote_entity } from "./vote.entity";
+import { Poll } from "./poll.entity";
+import { Option_entity } from "./option.entity";
 
-@Entity("options")
-export class Option_entity {
-    @PrimaryGeneratedColumn()  // primary key
-    id :number;
-    @Column({type : 'text'})
-    content :string;
-    @ManyToOne(() => Poll, poll => poll.options)
-    poll :Poll;
-  
-    @OneToOne(() => Vote_entity,(vote) => vote.option,{cascade : true})
+
+@Entity("votes")
+export class Vote_entity {
+    @PrimaryGeneratedColumn()
+    id: number;
     
-    vote : Vote_entity;
+    @ManyToMany(() => User)
+    @JoinTable()
+    users: User[];
     
+    @OneToOne(() => Option_entity, (option) => option.vote)
+    @JoinColumn()
+    option: Option_entity;
     @CreateDateColumn()
     createdAt: Date;
     @UpdateDateColumn()  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column for updated_at field  // timestamp column
     updatedAt: Date;
-    
 }

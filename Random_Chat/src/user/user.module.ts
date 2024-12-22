@@ -16,8 +16,9 @@ import { Poll } from './entities/poll.entity';
 import { Option_entity } from './entities/option.entity';
 import { PollController } from './poll.controller';
 import { PollService } from './poll.service';
+import { Vote_entity } from './entities/vote.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity,Reaction,Poll,Option_entity])],
+  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity,Reaction,Poll,Option_entity,Vote_entity])],
   controllers: [UserController,PostController,PollController],
   providers: [UserService,PostService,PollService],
   exports: [UserService,PostService,PollService],

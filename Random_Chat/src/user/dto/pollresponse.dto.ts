@@ -1,7 +1,9 @@
+import { OptionsResponse } from "./options.dto";
+
 export class ResponsePoll {
     id: number;
     question: string;
-    options: string[];
+    options: OptionsResponse[];
     user :string;
     createdAt: Date;
     updatedAt: Date;

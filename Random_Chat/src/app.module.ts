@@ -17,6 +17,7 @@ import { Reaction } from './user/entities/reaction.entity';
 import { Poll } from './user/entities/poll.entity';
 import { Option_entity } from './user/entities/option.entity';
 import { PollController } from './user/poll.controller';
+import { Vote_entity } from './user/entities/vote.entity';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { PollController } from './user/poll.controller';
         username: "postgres",
         password: "postgres",
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity,Reaction,Poll,Option_entity],
+        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity,Reaction,Poll,Option_entity,Vote_entity],
         synchronize: true,
         logging: true,
       }),

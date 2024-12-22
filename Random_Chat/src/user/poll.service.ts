@@ -5,6 +5,8 @@ import { DataSource, Repository } from "typeorm";
 import { Poll } from "./entities/poll.entity";
 import { Option_entity } from "./entities/option.entity";
 import { ResponsePoll } from "./dto/pollresponse.dto";
+import { VoteDto } from "./dto/vote_dto.dto";
+import { Vote_entity } from "./entities/vote.entity";
 
 
 @Injectable()
@@ -32,32 +34,92 @@ export class PollService  {
                 const option = new Option_entity();
                 option.content = options[i];
                 option.poll = newPoll;
-                option.users = [];
+                
+                option.vote = new Vote_entity();
                 await manager.save(option);
             }
             return newPoll;
         });
    }
     // get all polls
-    async getAllPolls(){
+    async getAllPolls(): Promise<ResponsePoll[]> {
         const polls = await this.pollRepository.find({
-            relations: ["options", "user"],
+            relations: ["options", "options.vote", "options.vote.users", "user"],
         });
-        const pollResponse: ResponsePoll[] = new Array<ResponsePoll>();
-        for(let i = 0; i < polls.length; i++){
-            const poll = polls[i];
-            const options = poll.options.map(option => option.content);
-            const user = poll.user.email;
-            pollResponse.push({
-                id: poll.id,
-                question: poll.question,
-                options: options,
-                user: user,
-                createdAt: poll.createdAt,
-                updatedAt: poll.updatedAt,
-            });
+    
+        return polls.map((poll) => ({
+            id: poll.id,
+            question: poll.question,
+            user: poll.user?.email || "Anonymous",
+            createdAt: poll.createdAt,
+            updatedAt: poll.updatedAt,
+            options: poll.options.map((option) => ({
+                id: option.id,
+                content: option.content,
+                users_vote: option.vote?.users.map((user) => user.id) || [],
+            })),
+        }));
+    }
+    
+    async vote_to_option(vote_dto: VoteDto) {
+        const option = await this.optionsRepository.findOne({
+            where: { id: vote_dto.optionIndex },
+            relations: ["poll", "vote", "vote.users"],
+        });
+        if (!option) {
+            throw new Error("Option not found");
         }
+    
+        await this.dataSource.transaction(async (manager) => {
+            const user = await this.userRepository.findOne({
+                where: { id: vote_dto.userId },
+            });
+            if (!user) {
+                throw new Error("User not found");
+            }
+    
+            let vote = option.vote;
+            if (!vote) {
+                // Create a new vote if none exists for this option
+                vote = new Vote_entity();
+                vote.option = option;
+                vote.users = [];
+            }
+    
+            // Check if the user already voted
+            const userIndex = vote.users.findIndex((u) => u.id === user.id);
+            if (userIndex !== -1) {
+                // User has already voted; remove their vote
+                vote.users.splice(userIndex, 1);
+            } else {
+                // User is voting for the option; add their vote
+                vote.users.push(user);
+            }
+    
+            // Save the updated vote and related entities
+            await manager.save(vote);
+        });
+    
+        // Fetch the updated poll and format the response
+        const pollUpdated = await this.pollRepository.findOne({
+            where: { id: option.poll.id },
+            relations: ["options", "options.vote", "options.vote.users", "user"],
+        });
+    
+        const pollResponse = new ResponsePoll();
+        pollResponse.id = pollUpdated.id;
+        pollResponse.question = pollUpdated.question;
+        pollResponse.user = pollUpdated.user?.email || "Anonymous";
+        pollResponse.createdAt = pollUpdated.createdAt;
+        pollResponse.updatedAt = pollUpdated.updatedAt;
+        pollResponse.options = pollUpdated.options.map((opt) => ({
+            id: opt.id,
+            content: opt.content,
+            users_vote: opt.vote?.users.map((u) => u.id) || [],
+        }));
+    
         return pollResponse;
     }
+    
 
 }

@@ -204,7 +204,7 @@ useEffect(() => {
 
   return (
     <Card style={{
-      width: '600px',  // Larger for random chat
+      width: '550px',  // Larger for random chat
       position: 'relative',
       left: '-15px',
       height: '85vh',  // Adjust height
@@ -214,7 +214,9 @@ useEffect(() => {
       boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
       borderRadius: '10px',
       overflow: 'hidden'
-    }}>
+        }}
+        className='border border-slate-500 hover:border-slate-400'
+        >
       <CardHeader className="bg-slate-700 text-white flex items-center px-4 py-3 rounded-t-md shadow-md">
   {/* Avatar */}
   <Avatar

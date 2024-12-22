@@ -13,7 +13,7 @@ export class Poll {
     @OneToOne(()=> User)
     @JoinColumn()
     user : User;
-    @OneToMany(()=> Option_entity, option => option.poll)
+    @OneToMany(()=> Option_entity, option => option.poll,{ cascade: true })
     options : Option_entity[];
     @CreateDateColumn()
     createdAt: Date;

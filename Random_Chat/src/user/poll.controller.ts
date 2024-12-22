@@ -3,6 +3,7 @@ import { PollDto } from "./dto/polldto.dto";
 import { Poll } from "./entities/poll.entity";
 import { PollService } from "./poll.service";
 import { ResponsePoll } from "./dto/pollresponse.dto";
+import { VoteDto } from "./dto/vote_dto.dto";
 
 
 
@@ -21,6 +22,11 @@ export class PollController {
     @Post('getAllPolls')
     async getAllPolls(): Promise<ResponsePoll[]> {
         return this.pollService.getAllPolls();
+    }
+    // vote for an option
+    @Post('vote')
+    async vote(@Body() vote_dto: VoteDto): Promise<ResponsePoll> {
+        return this.pollService.vote_to_option(vote_dto);
     }
     
 }
