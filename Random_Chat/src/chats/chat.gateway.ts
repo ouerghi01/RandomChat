@@ -120,7 +120,9 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect {
         sender: user.email,
         roomId: message_new.roomId,
         receiver_id: message_new.receiver_id,
-        date_created:message_new.date_created
+        date_created:message_new.date_created,
+        sentiment_label : "",
+        sentiment_score: 0
       });
       const friend = await this.userService.findOne(message_new.receiver_id);
       

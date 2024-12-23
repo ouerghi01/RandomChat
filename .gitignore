@@ -1,0 +1,4 @@
+python_backend/.venv
+python_backend/logic/__pycache__
+.vscode
+ssl 

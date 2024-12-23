@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, memo } from 'react';
 import { Card, CardHeader, CardBody, CardFooter, Divider, Input, Button, Avatar, Link } from "@nextui-org/react";
 import { Socket } from "socket.io-client";
 import { User_info } from '../Profile/[id]/page';
-
+import { motion } from 'framer-motion'; // Import motion from Framer Motion
 interface MessagesProps {
   socket: typeof Socket;
   roomId: string;
@@ -20,6 +20,8 @@ interface IMsgDataTypes {
   content: string;
   roomId: string;
   date_created: Date;
+  sentiment_label?: string;
+  sentiment_score?: number;
 }
 
 interface friendship {
@@ -118,8 +120,22 @@ const DiscussionComponent: React.FC<MessagesProps> = memo((props) => {
   }
 
 useEffect(() => {
-    fetch_messages().then(data => {
-      setMessages(data);
+    fetch_messages().then(async (data:IMsgDataTypes[])  => {
+      const  messages_analytics:IMsgDataTypes[] = [];
+      for (const message of data) {
+        if(message.content) {
+          const sentiment = await analyzeSentiment(message.content) ;
+          if (sentiment) {
+            messages_analytics.push({
+             ...message,
+              sentiment_label: sentiment.sentiment_label,
+              sentiment_score: sentiment.sentiment_score,
+            });
+          }
+  
+        }
+      }
+      setMessages(messages_analytics);
     });
 
 }, []);
@@ -127,10 +143,23 @@ useEffect(() => {
   useEffect(() => {
   const eventName = `send_message`;
 
-  socket.on(eventName, (data: IMsgDataTypes) => {
-    setMessages((prevMessages) => [...prevMessages, data]);
-    socket.emit('typing',{user_guest:id,typing:false});
-  });
+  // Example usage in a socket listener
+  socket.on(eventName, async (data: IMsgDataTypes) => {
+  if (data.content) {
+    const sentiment = await analyzeSentiment(data.content);
+    if (sentiment) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          ...data,
+          sentiment_label: sentiment.sentiment_label,
+          sentiment_score: sentiment.sentiment_score,
+        },
+      ]);
+    }
+  }
+  socket.emit('typing', { user_guest: id, typing: false });
+});
 
   return () => {
     socket.off(eventName);
@@ -289,61 +318,60 @@ useEffect(() => {
 </CardHeader>
 
       <Divider />
-      <CardBody style={{ flex: 1, padding: '15px', overflowY: 'auto', backgroundColor: '#e5ddd5' }}>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {messages.map((msg, index) => {
-            const isSender = msg.sender === userEmail;
-            return (
-              <li key={index} style={{ display: 'flex', justifyContent: isSender ? 'flex-end' : 'flex-start', margin: '5px 0' }}>
-                <div style={{
-                  maxWidth: '75%',
-                  padding: '8px 12px',
-                  borderRadius: '10px',
-                  backgroundColor: isSender ? '#dcf8c6' : '#ffffff',
-                  color: isSender ? '#000' : '#000',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
-                  fontSize: '0.9rem',
-                  wordBreak: 'break-word',
-                }}>
-                  <span style={{ display: 'block', marginBottom: '4px', fontSize: '0.8em', color: '#888' }}>
-                    {isSender ? 'You' : `User ${msg.sender}`}
-                  </span>
-                  <span>{msg.content}</span>
-                  <span style={{
-                    display: 'block',
-                    fontSize: '0.75em',
-                    color: '#999',
-                    marginTop: '5px',
-                    textAlign: 'right'
-                  }}>
-                    {new Date(msg.date_created).toLocaleString()}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-          <div ref={messagesEndRef} />
-          {user_typing && user_typing.typing && user_typing.user_guest === id ? (
-          <div className="ml-2 flex items-center space-x-1 text-sm text-gray-500">
-          <span>{user_guest} is typing</span>
-          <div className="flex space-x-1">
-          <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0s]"></span>
-          <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-           <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-           </div>
-          </div>
-          ) : null}
+      <CardBody className="flex-1 p-4 overflow-y-auto bg-gray-100">
+  <ul className="list-none p-0 m-0">
+    {messages.map((msg, index) => {
+      const isSender = msg.sender === userEmail;
+      const sentimentClass = msg.sentiment_label ? getSentimentClass(msg.sentiment_label) : null;
 
-        </ul>
-      </CardBody>
+      return (
+        <li key={index} className={`flex ${isSender ? 'justify-end' : 'justify-start'} my-2`}>
+          <div
+            className={`max-w-3/4 p-3 rounded-xl shadow-md text-sm break-words ${
+              isSender ? 'bg-green-100 text-black' : 'bg-white text-black'
+            }`}
+          >
+            <span className="block mb-1 text-xs text-gray-500">{isSender ? 'You' : `User ${msg.sender}`}</span>
+            <span>{msg.content}</span>
+            {msg.sentiment_label && (
+              <motion.span
+                className={`block text-xs mt-2 text-right ${sentimentClass}`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                Sentiment: {msg.sentiment_label} ({msg.sentiment_score})
+              </motion.span>
+            )}
+            <span className="block text-xs text-gray-500 mt-2 text-right">
+              {new Date(msg.date_created).toLocaleString()}
+            </span>
+          </div>
+        </li>
+      );
+    })}
+    <div ref={messagesEndRef} />
+    {user_typing && user_typing.typing && user_typing.user_guest === id && (
+      <div className="ml-2 flex items-center space-x-1 text-sm text-gray-500">
+        <span>{user_guest} is typing...</span>
+        <div className="flex space-x-1">
+          <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce delay-0"></span>
+          <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce delay-200"></span>
+          <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce delay-400"></span>
+        </div>
+      </div>
+    )}
+  </ul>
+</CardBody>
+
       <CardFooter style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>
         <form onSubmit={(e) => {
           e.preventDefault();
           if (message.trim() && isRandomChat) {
+            // send message to flask backend for sentiment analysis
             socket.emit('send_message', { content: message, roomId,receiver_id:id, date_created: new Date() });
             setMessage("");
           }else{
-
             socket.emit("send_message_to_user",{message:message,receiver_id:id,roomId,date_created:new Date()});
             setMessage("");
           }
@@ -378,4 +406,38 @@ DiscussionComponent.displayName = "DiscussionComponent";
 
 export default DiscussionComponent;
 
+function getSentimentClass(sentiment:string) {
+  switch (sentiment.toLowerCase()) {
+    case 'positive':
+      return 'text-green-600'; // Green color for positive sentiment
+    case 'negative':
+      return 'text-red-600'; // Red color for negative sentiment
+    case 'neutral':
+      return 'text-gray-500'; // Gray color for neutral sentiment
+    default:
+      return 'text-gray-500'; // Default gray for unknown sentiment
+  }
+}
+
+async function analyzeSentiment(message: string) {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:5000/analyze_sentiment/${encodeURIComponent(message)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error analyzing sentiment:', error);
+    return null;
+  }
+}
 
