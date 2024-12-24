@@ -13,6 +13,7 @@ import Create_post from './Components/Post_ui/Create_post';
 import Get_posts from './Components/Post_ui/Get_post';
 import Create_poll from './Components/Poll_ui/Create_poll';
 import Get_poll from './Components/Poll_ui/Get_poll';
+import CreateGroup from './Components/Group_chat_ui/Create_group';
 
 interface InitialsMessage {
   message: string;
@@ -256,7 +257,6 @@ function Message() {
   {/* Post Section */}
   {user_main_info && (
     <div className="mt-6    relative right-2">
-      <h2 className="text-lg font-semibold text-white mb-3">Create Post</h2>
       <Create_post
         id={user_id}
         email={user_main_info.email}
@@ -265,8 +265,11 @@ function Message() {
     </div>
   )}
   {/* Create Poll Section */}
-  <h2 className="text-lg font-semibold text-white mb-3">Add Poll</h2>
+  <div className='flex flex-col items-center mt-6'>
   <Create_poll />
+  <CreateGroup/>
+
+  </div>
   
 </div>
 

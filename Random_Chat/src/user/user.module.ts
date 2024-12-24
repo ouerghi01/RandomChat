@@ -17,10 +17,14 @@ import { Option_entity } from './entities/option.entity';
 import { PollController } from './poll.controller';
 import { PollService } from './poll.service';
 import { Vote_entity } from './entities/vote.entity';
+import { GroupChat } from './entities/groupchat.enity';
+import { GroupChatService } from './group.chat.service';
+import { ChatGroupController } from './chatgroup.controller';
 @Module({
-  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity,Reaction,Poll,Option_entity,Vote_entity])],
-  controllers: [UserController,PostController,PollController],
-  providers: [UserService,PostService,PollService],
-  exports: [UserService,PostService,PollService],
+  imports: [TypeOrmModule.forFeature([User,Token,Message,Room,Friendship,Profile,Post_entity,Reaction,Poll,Option_entity,
+    Vote_entity,GroupChat])],
+  controllers: [UserController,PostController,PollController,ChatGroupController],
+  providers: [UserService,PostService,PollService,GroupChatService],
+  exports: [UserService,PostService,PollService,GroupChatService],
 })
 export class UserModule {}

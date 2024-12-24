@@ -36,11 +36,11 @@ export default function CreatePoll() {
   };
 
   return (
-    <div className="flex flex-col items-center p-4 space-y-4">
+    <div className="flex flex-col items-center p-4 space-y-4 w-fit ">
       {/* Create Poll Button */}
       <button
         onClick={() => setIsCreatingPoll(!isCreatingPoll)}
-        className="p-3 bg-purple-500 text-white rounded-md shadow-md hover:bg-blue-700 transition duration-200"
+        className="p-3 bg-purple-500 text-white rounded-md shadow-md hover:bg-blue-700 transition duration-200 "
       >
         Create Poll
       </button>

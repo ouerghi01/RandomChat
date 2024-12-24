@@ -18,6 +18,8 @@ import { Poll } from './user/entities/poll.entity';
 import { Option_entity } from './user/entities/option.entity';
 import { PollController } from './user/poll.controller';
 import { Vote_entity } from './user/entities/vote.entity';
+import { GroupChat } from './user/entities/groupchat.enity';
+import { ChatGroupController } from './user/chatgroup.controller';
 
 @Module({
   imports: [
@@ -34,7 +36,9 @@ import { Vote_entity } from './user/entities/vote.entity';
         username: "postgres",
         password: "postgres",
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity,Reaction,Poll,Option_entity,Vote_entity],
+        entities: [User, Token, Message, Room, Friendship,Profile,Post_entity,Reaction,Poll,Option_entity,
+        Vote_entity,GroupChat
+      ],
         synchronize: true,
         logging: true,
       }),
@@ -44,7 +48,7 @@ import { Vote_entity } from './user/entities/vote.entity';
     AuthModule,
     ChatsModule,
   ],
-  controllers: [UserController,PostController,PollController],
+  controllers: [UserController,PostController,PollController,ChatGroupController],
   providers: [],
 })
 export class AppModule {}

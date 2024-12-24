@@ -18,6 +18,8 @@ with urllib.request.urlopen(mapping_link) as f:
 labels = [row[1] for row in csv_reader if len(row) > 1]
 model = TFAutoModelForSequenceClassification.from_pretrained(MODEL)
 
+
+
 # Function to analyze sentiment
 def analyze_sentiment(text: str) -> str:
     encoded_input = tokenizer(text, return_tensors='tf')
