@@ -14,6 +14,7 @@ import Get_posts from './Components/Post_ui/Get_post';
 import Create_poll from './Components/Poll_ui/Create_poll';
 import Get_poll from './Components/Poll_ui/Get_poll';
 import CreateGroup from './Components/Group_chat_ui/Create_group';
+import ChatUI from './Components/Group_chat_ui/Chat_ui';
 
 interface InitialsMessage {
   message: string;
@@ -26,6 +27,14 @@ export interface friendWithRoom {
   name: string;
   roomId: string;
  
+}
+export interface ChatGroupInterface {
+  group_id: number;
+  name: string;
+  description: string;
+  logo_group: string;
+  max_member_count: number;
+
 }
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL
@@ -69,6 +78,33 @@ function Message() {
   const friend = useAppSelector((state) => state.friends.friend);
   const [loading, setLoading] = useState(false);
   const [user_main_info, SetUser_main_info] = useState<User_info | null>(null);
+  const [chatGroups, setChatGroups] = useState<ChatGroupInterface[]>([]);
+  const [currentGroupChat, setCurrentGroupChat] = useState<ChatGroupInterface | null>(null);
+  useEffect(
+    () => {
+      fetch(
+        `${API_BASE_URL}group/all/${user_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(response => response.json())
+       .then((data) => setChatGroups(data))
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [socket]
+  )
+  useEffect(
+    () => {
+      socket?.on('joined',(data:unknown) => {
+        alert((data as { message: string }).message)
+
+
+      })
+    },[socket]
+  )
 
   useEffect(() => {
       if (!user_id || !token) return;
@@ -253,6 +289,33 @@ function Message() {
         ) : null
       )}
   </ul>
+  <h1 className="text-xl font-bold text-white mb-4">Joined Group Chats</h1>
+  <ul className="space-y-4">
+    {chatGroups.length > 0 &&
+      chatGroups.map((chat_group) =>
+        chat_group ? (
+          <li key={chat_group.group_id}>
+            <button
+              className="flex items-center w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition duration-150 ease-in-out"
+              onClick={() => {
+                setCurrentGroupChat(chat_group);
+              }}
+              
+            >
+              <Avatar
+                isBordered
+                className="transition-transform"
+                color="secondary"
+                name={chat_group.name}
+                size="sm"
+                src={chat_group.logo_group}
+              />
+              <span className="ml-3 font-medium text-white">{chat_group.name}</span>
+            </button>
+          </li>
+        ) : null
+      )}
+  </ul>
 
   {/* Post Section */}
   {user_main_info && (
@@ -291,6 +354,14 @@ function Message() {
 
   {/* Chat Module */}
   <div className="w-1/3 bg-white  shadow-lg relative bottom-24 h-full rounded-tl-lg rounded-bl-lg flex flex-col overflow-y-auto">
+  <div className='relative top-20 items-center justify-center'>
+    {
+      currentGroupChat && socket && (
+        <ChatUI key={currentGroupChat.group_id} socket={socket} groupId={currentGroupChat.group_id}  name_group= {currentGroupChat.name} description= {currentGroupChat.description} logo_group= {currentGroupChat.logo_group} max_member_count= {currentGroupChat.max_member_count} />
+      )
+    }
+  </div>
+    
     {MessageModule(showChat, friend, loading, greetingMessage, socket, isRandomChat)}
   </div>
 </div>

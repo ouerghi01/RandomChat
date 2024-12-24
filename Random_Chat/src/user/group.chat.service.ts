@@ -5,6 +5,7 @@ import { DataSource, Repository } from "typeorm";
 import { GroupChat } from "./entities/groupchat.enity";
 import { CreateGroupDto } from "./dto/creategroup.dto";
 import { AddUserDto } from "./dto/addusergroup.dto";
+import { GroupChatResponse } from "./dto/groupschatres.dto";
 
 @Injectable()
 export class GroupChatService {
@@ -45,6 +46,33 @@ export class GroupChatService {
         }
         groupChat.users.push(user);
         await this.groupChatRepository.save(groupChat);
+    }
+    async getAllGroupByAdmin(user_id: number): Promise<GroupChatResponse[]> {
+        const user = await this.userRepository.findOne({
+            where: { id: user_id },
+        }) ;
+        if(!user){
+            throw new Error("User not found");
+        }
+        const groups = await this.groupChatRepository.find(
+            {
+                where: [
+                    { admin: user },
+                    { users: {id: user.id } },
+                ],
+                relations: ['users','admin'],
+            }
+        )
+        return groups.map((group) => {
+            return {
+                group_id: group.id,
+                name: group.name,
+                description: group.description,
+                logo_group: group.logo_group,
+                max_member_count: group.max_member_count,
+            };
+        }
+        );
     }
         
 

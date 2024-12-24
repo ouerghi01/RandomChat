@@ -5,7 +5,7 @@ import Image from 'next/image';
 import React, { useEffect } from 'react'
 interface GroupProps {
   socket: typeof Socket;
-  groupId: string;
+  groupId: number;
   name_group: string;
   description: string;
   logo_group: string;

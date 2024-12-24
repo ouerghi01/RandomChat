@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { GroupChatService } from "./group.chat.service";
 import { CreateGroupDto } from "./dto/creategroup.dto";
 
@@ -10,5 +10,13 @@ export class ChatGroupController {
     async createGroup(@Body() createGroupDto: CreateGroupDto) {
         return this.groupChatService.createGroupChat(createGroupDto);
     }
+    @Get('all/:admin_id')
+    async getAllGroup(
+        @Param('admin_id') admin_id: number
+    ) {
+        return this.groupChatService.getAllGroupByAdmin(admin_id);
+    }
+        
+    
 
 }
